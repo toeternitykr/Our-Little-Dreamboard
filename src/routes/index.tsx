@@ -10,7 +10,7 @@ function PhotoBg() {
   return (
     <div aria-hidden className="fixed inset-0 -z-10">
       <img src={coupleBg.url} alt="" className="h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-background/30 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 bg-background/12 backdrop-blur-[1px]" />
     </div>
   );
 }
