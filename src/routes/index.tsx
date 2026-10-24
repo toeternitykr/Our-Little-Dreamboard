@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string; color: number };
+type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number };
 const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
 const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
