@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,41 +17,81 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string; color: number };
-const KEY = "couple-bucket-v1";
+type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number };
 const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
 const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
+type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number };
+const toItem = (r: Row): Item => ({ id: r.id, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
+
 function Index() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    supabase.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
+    return () => data.subscription.unsubscribe();
+  }, []);
+  if (!ready) return <div className="flex min-h-screen items-center justify-center text-4xl animate-pulse">💕</div>;
+  return session ? <Board /> : <Login />;
+}
+
+function Login() {
+  const [err, setErr] = useState("");
+  const signIn = async () => {
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    if (r.error) setErr("로그인에 실패했어요. 다시 시도해 주세요.");
+  };
+  return (
+    <main className="flex min-h-screen items-center justify-center px-6">
+      <div className="w-full max-w-sm -rotate-1 rounded-3xl bg-note-1 p-8 text-center shadow-soft">
+        <p className="text-5xl">👩‍❤️‍👨</p>
+        <h1 className="mt-3 font-display text-3xl">우리의 버킷리스트</h1>
+        <p className="mt-2 text-sm text-muted-foreground">함께 쓰는 계정으로 로그인하면<br />어디서든 같은 꿈을 볼 수 있어요 🌙</p>
+        <button onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
+          🔑 구글로 로그인
+        </button>
+        {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
+      </div>
+    </main>
+  );
+}
+
+function Board() {
   const [items, setItems] = useState<Item[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<"todo" | "done">("todo");
   const [editing, setEditing] = useState<Item | null | "new">(null);
 
-  useEffect(() => {
-    try { setItems(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch {}
+  const load = async () => {
+    const { data } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });
+    setItems(((data ?? []) as Row[]).map(toItem));
     setLoaded(true);
-  }, []);
-  useEffect(() => { if (loaded) localStorage.setItem(KEY, JSON.stringify(items)); }, [items, loaded]);
+  };
+  useEffect(() => { load(); }, []);
 
-  const complete = (id: string) => {
-    setItems((p) => p.map((i) => (i.id === id ? { ...i, done: true, doneAt: new Date().toLocaleDateString("ko-KR") } : i)));
+  const complete = async (id: string) => {
+    await supabase.from("bucket_items").update({ done: true, done_at: new Date().toISOString() }).eq("id", id);
+    load();
     const colors = ["#f4a492", "#a8e0cf", "#fbe3a1", "#f7c6d0"];
     confetti({ particleCount: 140, spread: 80, origin: { y: 0.7 }, colors });
     setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 60, origin: { x: 0 }, colors }), 200);
     setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1 }, colors }), 350);
   };
 
-  const save = (data: Omit<Item, "id" | "done" | "color">) => {
+  const save = async (d: { title: string; desc: string; year: string }) => {
+    const row = { title: d.title, description: d.desc, target_year: d.year };
     if (editing === "new") {
-      setItems((p) => [{ ...data, id: crypto.randomUUID(), done: false, color: Math.floor(Math.random() * 4) }, ...p]);
+      await supabase.from("bucket_items").insert({ ...row, color: Math.floor(Math.random() * 4) });
       setTab("todo");
     } else if (editing) {
-      setItems((p) => p.map((i) => (i.id === editing.id ? { ...i, ...data } : i)));
+      await supabase.from("bucket_items").update(row).eq("id", editing.id);
     }
     setEditing(null);
+    load();
   };
-  const remove = (id: string) => { setItems((p) => p.filter((i) => i.id !== id)); setEditing(null); };
+  const remove = async (id: string) => { await supabase.from("bucket_items").delete().eq("id", id); setEditing(null); load(); };
+  const signOut = () => supabase.auth.signOut();
 
   const todo = items.filter((i) => !i.done);
   const done = items.filter((i) => i.done);
@@ -56,6 +99,9 @@ function Index() {
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-4 pb-16 pt-8 sm:px-6">
+      <div className="flex justify-end">
+        <button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</button>
+      </div>
       <header className="text-center">
         <p className="text-3xl">👩‍❤️‍👨</p>
         <h1 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">우리의 버킷리스트</h1>
@@ -80,7 +126,9 @@ function Index() {
         ))}
       </nav>
 
-      {list.length === 0 ? (
+      {!loaded ? (
+        <p className="mt-16 text-center text-4xl animate-pulse">🌷</p>
+      ) : list.length === 0 ? (
         <div className="mt-16 text-center text-muted-foreground">
           <p className="text-5xl">{tab === "todo" ? "🌱" : "🎁"}</p>
           <p className="mt-3">{tab === "todo" ? "첫 번째 꿈을 적어볼까요?" : "아직 이룬 꿈이 없어요. 곧 채워질 거예요!"}</p>
