@@ -43,7 +43,12 @@ function Index() {
     return () => data.subscription.unsubscribe();
   }, []);
   if (!ready) return <div className="flex min-h-screen items-center justify-center text-4xl animate-pulse">💕</div>;
-  return session ? <Board /> : <Login />;
+  return (
+    <>
+      <PhotoBg />
+      {session ? <Board /> : <Login />}
+    </>
+  );
 }
 
 function Login() {
