@@ -8,7 +8,7 @@ import { lovable } from "@/integrations/lovable/index";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "우리의 버킷리스트 보드 💕" },
+      { title: "우리(윤 용태, 김 정순)의 버킷리스트 💕" },
       { name: "description", content: "부부가 함께 해보고 싶은 것들을 기록하고 하나씩 이뤄가는 따뜻한 버킷리스트 보드" },
       { property: "og:title", content: "우리(윤 용태, 김 정순)의 버킷리스트 💕" },
       { property: "og:description", content: "함께 꿈꾸고, 함께 이뤄가요." },
