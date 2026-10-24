@@ -144,7 +144,7 @@ function Board() {
       {!loaded ? (
         <p className="mt-16 text-center text-4xl animate-pulse">🌷</p>
       ) : list.length === 0 ? (
-        <div className="mx-auto mt-16 w-fit rounded-[2rem] bg-background/60 px-10 py-8 text-center text-muted-foreground shadow-soft backdrop-blur-[3px]">
+        <div className="mx-auto mt-16 w-fit rounded-[2rem] bg-background/80 px-10 py-8 text-center text-base text-muted-foreground shadow-soft backdrop-blur-[3px]">
           <p className="text-5xl">{tab === "todo" ? "🌱" : "🎁"}</p>
           <p className="mt-3">{tab === "todo" ? "첫 번째 꿈을 적어볼까요?" : "아직 이룬 꿈이 없어요. 곧 채워질 거예요!"}</p>
         </div>
@@ -165,8 +165,8 @@ function Board() {
               </div>
               {it.desc && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{it.desc}</p>}
               <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="rounded-full bg-card/70 px-3 py-1">🗓️ {it.year}년 목표</span>
-                {it.done && <span className="text-muted-foreground">✨ {it.doneAt}</span>}
+                <span className="rounded-full bg-muted px-3 py-1 font-medium">🗓️ {it.year}년 목표</span>
+                {it.done && <span className="font-medium text-muted-foreground">✨ {it.doneAt}</span>}
               </div>
               {!it.done && (
                 <button
