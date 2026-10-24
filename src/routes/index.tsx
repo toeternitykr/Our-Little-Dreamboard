@@ -10,7 +10,7 @@ function PhotoBg() {
   return (
     <div aria-hidden className="fixed inset-0 -z-10">
       <img src={coupleBg.url} alt="" className="h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-background/12 backdrop-blur-[1px]" />
     </div>
   );
 }
@@ -117,7 +117,7 @@ function Board() {
       <div className="flex justify-end">
         <button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</button>
       </div>
-      <header className="text-center">
+      <header className="mx-auto w-fit rounded-[2rem] bg-background/60 px-8 py-6 text-center shadow-soft backdrop-blur-[3px]">
         <p className="text-3xl">👩‍❤️‍👨</p>
         <h1 className="mt-2 font-display text-2xl text-foreground sm:text-3xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-1 text-sm text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
@@ -144,7 +144,7 @@ function Board() {
       {!loaded ? (
         <p className="mt-16 text-center text-4xl animate-pulse">🌷</p>
       ) : list.length === 0 ? (
-        <div className="mt-16 text-center text-muted-foreground">
+        <div className="mx-auto mt-16 w-fit rounded-[2rem] bg-background/80 px-10 py-8 text-center text-base text-muted-foreground shadow-soft backdrop-blur-[3px]">
           <p className="text-5xl">{tab === "todo" ? "🌱" : "🎁"}</p>
           <p className="mt-3">{tab === "todo" ? "첫 번째 꿈을 적어볼까요?" : "아직 이룬 꿈이 없어요. 곧 채워질 거예요!"}</p>
         </div>
@@ -165,8 +165,8 @@ function Board() {
               </div>
               {it.desc && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{it.desc}</p>}
               <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="rounded-full bg-card/70 px-3 py-1">🗓️ {it.year}년 목표</span>
-                {it.done && <span className="text-muted-foreground">✨ {it.doneAt}</span>}
+                <span className="rounded-full bg-muted px-3 py-1 font-medium">🗓️ {it.year}년 목표</span>
+                {it.done && <span className="font-medium text-muted-foreground">✨ {it.doneAt}</span>}
               </div>
               {!it.done && (
                 <button
