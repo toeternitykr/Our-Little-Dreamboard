@@ -8,9 +8,9 @@ import { lovable } from "@/integrations/lovable/index";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "우리의 버킷리스트 보드 💕" },
+      { title: "우리(윤 용태, 김 정순)의 버킷리스트 💕" },
       { name: "description", content: "부부가 함께 해보고 싶은 것들을 기록하고 하나씩 이뤄가는 따뜻한 버킷리스트 보드" },
-      { property: "og:title", content: "우리의 버킷리스트 보드 💕" },
+      { property: "og:title", content: "우리(윤 용태, 김 정순)의 버킷리스트 💕" },
       { property: "og:description", content: "함께 꿈꾸고, 함께 이뤄가요." },
     ],
   }),
@@ -46,7 +46,7 @@ function Login() {
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm -rotate-1 rounded-3xl bg-note-1 p-8 text-center shadow-soft">
         <p className="text-5xl">👩‍❤️‍👨</p>
-        <h1 className="mt-3 font-display text-3xl">우리의 버킷리스트</h1>
+        <h1 className="mt-3 font-display text-2xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-2 text-sm text-muted-foreground">함께 쓰는 계정으로 로그인하면<br />어디서든 같은 꿈을 볼 수 있어요 🌙</p>
         <button onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
           🔑 구글로 로그인
@@ -104,7 +104,7 @@ function Board() {
       </div>
       <header className="text-center">
         <p className="text-3xl">👩‍❤️‍👨</p>
-        <h1 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">우리의 버킷리스트</h1>
+        <h1 className="mt-2 font-display text-2xl text-foreground sm:text-3xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-1 text-sm text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
         <button
           onClick={() => setEditing("new")}

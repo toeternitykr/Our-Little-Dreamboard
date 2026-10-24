@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "우리의 버킷리스트" },
+      { title: "우리(윤 용태, 김 정순)의 버킷리스트" },
       { name: "description", content: "부부가 함께 꿈꾸고 이뤄가는 공동 버킷리스트 보드" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
