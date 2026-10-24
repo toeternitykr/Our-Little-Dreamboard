@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bucket_items: {
+        Row: {
+          color: number
+          created_at: string
+          description: string
+          done: boolean
+          done_at: string | null
+          id: string
+          target_year: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          color?: number
+          created_at?: string
+          description?: string
+          done?: boolean
+          done_at?: string | null
+          id?: string
+          target_year: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          color?: number
+          created_at?: string
+          description?: string
+          done?: boolean
+          done_at?: string | null
+          id?: string
+          target_year?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
