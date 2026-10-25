@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Images, X } from "lucide-react";
+import { Images, X, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DreamPhotos } from "@/components/dream-photos";
 import type { PhotoStore } from "@/components/dream-photos";
@@ -101,6 +101,7 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<"todo" | "done">("todo");
   const [editing, setEditing] = useState<Item | null | "new">(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const load = async () => {
     const { data, error } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });
@@ -211,6 +212,16 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
                 </Button>
               )}
               <BucketFeedback itemId={it.id} preference={it.preference} onPreference={(preference) => setItems((current) => current.map((item) => item.id === it.id ? { ...item, preference } : item))} />
+              <div className="mt-2 flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                <Button type="button" variant="ghost" size="icon" title="꿈 수정" aria-label="꿈 수정" disabled={deleting !== null} onClick={() => setEditing(it)}><Pencil /></Button>
+                <Button type="button" variant="ghost" size="icon" title="꿈 삭제" aria-label="꿈 삭제" className="text-destructive" disabled={deleting !== null} onClick={async () => {
+                  if (!confirm(`“${it.title}” 꿈을 삭제할까요? 답글과 기념 사진도 함께 삭제돼요.`)) return;
+                  setDeleting(it.id); setBoardError("");
+                  try { await remove(it.id); }
+                  catch (e) { setBoardError(e instanceof Error ? e.message : "꿈을 삭제하지 못했어요."); }
+                  finally { setDeleting(null); }
+                }}><Trash2 /></Button>
+              </div>
             </article>
           ))}
         </section>
