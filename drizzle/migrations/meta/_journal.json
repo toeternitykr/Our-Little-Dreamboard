@@ -15,6 +15,13 @@
       "when": 1792890740658,
       "tag": "0001_bucket_replies_and_preference",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792896198301,
+      "tag": "0002_dream_dates_authors_photos",
+      "breakpoints": true
     }
   ]
 }

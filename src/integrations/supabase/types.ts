@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       bucket_items: {
         Row: {
+          author_name: string
           color: number
           created_at: string
           description: string
@@ -23,11 +24,13 @@ export type Database = {
           done_at: string | null
           id: string
           preference: number
+          target_date: string | null
           target_year: string
           title: string
           user_id: string
         }
         Insert: {
+          author_name?: string
           color?: number
           created_at?: string
           description?: string
@@ -35,11 +38,13 @@ export type Database = {
           done_at?: string | null
           id?: string
           preference?: number
+          target_date?: string | null
           target_year: string
           title: string
           user_id?: string
         }
         Update: {
+          author_name?: string
           color?: number
           created_at?: string
           description?: string
@@ -47,11 +52,47 @@ export type Database = {
           done_at?: string | null
           id?: string
           preference?: number
+          target_date?: string | null
           target_year?: string
           title?: string
           user_id?: string
         }
         Relationships: []
+      }
+      bucket_photos: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string | null
+          kind: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          kind: string
+          storage_path: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          kind?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bucket_photos_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "bucket_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bucket_replies: {
         Row: {
