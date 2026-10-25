@@ -22,6 +22,7 @@ export type Database = {
           done: boolean
           done_at: string | null
           id: string
+          preference: number
           target_year: string
           title: string
           user_id: string
@@ -33,6 +34,7 @@ export type Database = {
           done?: boolean
           done_at?: string | null
           id?: string
+          preference?: number
           target_year: string
           title: string
           user_id?: string
@@ -44,11 +46,44 @@ export type Database = {
           done?: boolean
           done_at?: string | null
           id?: string
+          preference?: number
           target_year?: string
           title?: string
           user_id?: string
         }
         Relationships: []
+      }
+      bucket_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          item_id: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bucket_replies_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "bucket_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
