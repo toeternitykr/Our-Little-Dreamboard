@@ -11,3 +11,6 @@
 
 - Keep bucket-item replies in a child table with parent-owner access policies; the shared account is the ownership boundary.
 - Store one shared preference on each bucket item and isolate reply/rating interactions in BucketFeedback so they do not trigger card editing.
+- Store photo metadata in bucket_photos and files in an owner-scoped private Storage bucket; use renewed signed URLs so shared-account photos are not publicly exposed.
+- Keep target_date optional alongside the legacy target_year and select author labels explicitly because both people use one account.
+- Keep Seoul calendar-day countdown helpers separate from UI and photo controls isolated from card-edit clicks.
