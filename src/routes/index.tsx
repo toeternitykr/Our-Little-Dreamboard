@@ -64,7 +64,7 @@ function Login() {
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm -rotate-1 rounded-3xl bg-note-1 p-8 text-center shadow-soft">
         <p className="text-5xl">👩‍❤️‍👨</p>
-        <h1 className="mt-3 font-display text-2xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
+        <h1 className="mt-3 font-display text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-2 text-sm text-muted-foreground">함께 쓰는 계정으로 로그인하면<br />어디서든 같은 꿈을 볼 수 있어요 🌙</p>
         <button onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
           🔑 구글로 로그인
@@ -120,24 +120,24 @@ function Board() {
       <div className="flex justify-end">
         <button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</button>
       </div>
-      <header className="mx-auto w-fit rounded-[2rem] bg-background/60 px-8 py-6 text-center shadow-soft backdrop-blur-[3px]">
-        <p className="text-3xl">👩‍❤️‍👨</p>
-        <h1 className="mt-2 font-display text-2xl text-foreground sm:text-3xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
-        <p className="mt-1 text-sm text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
+      <header className="mx-auto w-fit rounded-[1.5rem] bg-background/50 px-6 py-4 text-center shadow-soft backdrop-blur-[3px]">
+        <p className="text-2xl">👩‍❤️‍👨</p>
+        <h1 className="mt-1.5 font-display text-lg text-foreground sm:text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
+        <p className="mt-0.5 text-xs text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
         <button
           onClick={() => setEditing("new")}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-display text-lg text-primary-foreground shadow-soft transition active:scale-95 hover:-translate-y-0.5"
+          className="mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-base text-primary-foreground shadow-soft transition active:scale-95 hover:-translate-y-0.5"
         >
           ＋ 새로운 버킷리스트 추가하기
         </button>
       </header>
 
-      <nav className="sticky top-2 z-10 mx-auto mt-8 grid max-w-md grid-cols-2 gap-1 rounded-full border bg-card/90 p-1 shadow-soft backdrop-blur">
+      <nav className="sticky top-2 z-10 mx-auto mt-6 grid max-w-sm grid-cols-2 gap-1 rounded-full border bg-card/80 p-1 shadow-soft backdrop-blur">
         {([["todo", "🏃‍♂️ 우리의 꿈", todo.length], ["done", "✨ 이룬 꿈", done.length]] as const).map(([k, label, n]) => (
           <button
             key={k}
             onClick={() => setTab(k)}
-            className={`rounded-full py-2.5 font-display transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
+            className={`rounded-full py-2 font-display text-sm transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
           >
             {label} <span className="text-sm opacity-80">{n}</span>
           </button>
@@ -157,11 +157,11 @@ function Board() {
             <article
               key={it.id}
               onClick={() => setEditing(it)}
-              className={`relative cursor-pointer rounded-2xl p-5 pt-7 shadow-soft transition hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card" : NOTES[it.color % 4]} ${idx % 2 ? "rotate-1" : "-rotate-1"} hover:rotate-0`}
+              className={`relative cursor-pointer rounded-2xl p-4 pt-6 shadow-soft transition hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card" : NOTES[it.color % 4]} ${idx % 2 ? "rotate-1" : "-rotate-1"} hover:rotate-0`}
             >
               <span className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-3 rounded-sm bg-tape" />
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-display text-xl leading-snug">
+                <h3 className="font-display text-lg leading-snug">
                   {EMOJIS[it.title.length % EMOJIS.length]} {it.title}
                 </h3>
                 {it.done && <span className="text-2xl">🏅</span>}
@@ -174,7 +174,7 @@ function Board() {
               {!it.done && (
                 <button
                   onClick={(e) => { e.stopPropagation(); complete(it.id); }}
-                  className="mt-4 w-full rounded-xl bg-secondary py-2.5 font-display text-secondary-foreground transition active:scale-95 hover:brightness-95"
+                  className="mt-3.5 w-full rounded-xl bg-secondary py-2 font-display text-sm text-secondary-foreground transition active:scale-95 hover:brightness-95"
                 >
                   🎉 완료하기
                 </button>
