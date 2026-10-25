@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import coupleBg from "@/assets/couple-bg.jpg.asset.json";
+import { BucketFeedback } from "@/components/bucket-feedback";
 
 function PhotoBg() {
   return (
@@ -22,17 +23,19 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "부부가 함께 해보고 싶은 것들을 기록하고 하나씩 이뤄가는 따뜻한 버킷리스트 보드" },
       { property: "og:title", content: "우리(윤 용태, 김 정순)의 버킷리스트 💕" },
       { property: "og:description", content: "함께 꿈꾸고, 함께 이뤄가요." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
 });
 
-type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number };
+type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number; preference: number };
 const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
 const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
-type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number };
-const toItem = (r: Row): Item => ({ id: r.id, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
+type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number; preference: number };
+const toItem = (r: Row): Item => ({ id: r.id, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
 
 function Index() {
   const [session, setSession] = useState<Session | null>(null);
@@ -176,6 +179,7 @@ function Board() {
                   🎉 완료하기
                 </button>
               )}
+              <BucketFeedback itemId={it.id} preference={it.preference} onPreference={(preference) => setItems((current) => current.map((item) => item.id === it.id ? { ...item, preference } : item))} />
             </article>
           ))}
         </section>
