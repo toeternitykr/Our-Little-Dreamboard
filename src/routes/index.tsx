@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Images, X, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DreamPhotos } from "@/components/dream-photos";
+import type { PhotoStore } from "@/components/dream-photos";
+import { useDreamPhotos } from "@/hooks/use-dream-photos";
+import { WRITERS, countdownLabel, todayInSeoul } from "@/lib/dream-details";
 import confetti from "canvas-confetti";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,13 +13,22 @@ import { lovable } from "@/integrations/lovable/index";
 import coupleBg from "@/assets/couple-bg.jpg.asset.json";
 import { BucketFeedback } from "@/components/bucket-feedback";
 
-function PhotoBg() {
-  return (
-    <div aria-hidden className="fixed inset-0 -z-10">
-      <img src={coupleBg.url} alt="" className="h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-background/12 backdrop-blur-[1px]" />
-    </div>
-  );
+function PhotoBg({ photos }: { photos: PhotoStore["photos"] }) {
+  const backgrounds = photos.filter((p) => p.kind === "background");
+  const sources = [coupleBg.url, ...backgrounds.map((p) => p.url)];
+  const [active, setActive] = useState(0);
+  const sourceKey = sources.join("|");
+  useEffect(() => {
+    setActive(0);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (sources.length < 2 || reduced) return;
+    const timer = setInterval(() => setActive((n) => (n + 1) % sources.length), 10000);
+    return () => clearInterval(timer);
+  }, [sourceKey]);
+  return <div aria-hidden className="fixed inset-0 -z-10">
+    {sources.map((url, index) => <img key={url} src={url} alt="" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 motion-reduce:transition-none ${index === active ? "opacity-100" : "opacity-0"}`} />)}
+    <div className="absolute inset-0 bg-background/12 backdrop-blur-[1px]" />
+  </div>;
 }
 
 export const Route = createFileRoute("/")({
@@ -25,21 +40,23 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "함께 꿈꾸고, 함께 이뤄가요." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      ...(coupleBg.url.startsWith("https://") ? [{ property: "og:image", content: coupleBg.url }, { name: "twitter:image", content: coupleBg.url }] : []),
     ],
   }),
   component: Index,
 });
 
-type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number; preference: number };
+type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number; preference: number; date: string | null; author: string };
 const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
 const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
-type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number; preference: number };
-const toItem = (r: Row): Item => ({ id: r.id, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
+type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number; preference: number; target_date: string | null; author_name: string };
+const toItem = (r: Row): Item => ({ id: r.id, date: r.target_date, author: r.author_name, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
 
 function Index() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const photoStore = useDreamPhotos(session?.user.id);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     supabase.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
@@ -48,8 +65,8 @@ function Index() {
   if (!ready) return <div className="flex min-h-screen items-center justify-center text-4xl animate-pulse">💕</div>;
   return (
     <>
-      <PhotoBg />
-      {session ? <Board /> : <Login />}
+      <PhotoBg photos={photoStore.photos} />
+      {session ? <Board photoStore={photoStore} /> : <Login />}
     </>
   );
 }
@@ -66,23 +83,29 @@ function Login() {
         <p className="text-5xl">👩‍❤️‍👨</p>
         <h1 className="mt-3 font-display text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-2 text-sm text-muted-foreground">함께 쓰는 계정으로 로그인하면<br />어디서든 같은 꿈을 볼 수 있어요 🌙</p>
-        <button onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
+        <Button variant="ghost" onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
           🔑 구글로 로그인
-        </button>
+        </Button>
         {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
       </div>
     </main>
   );
 }
 
-function Board() {
+function Board({ photoStore }: { photoStore: PhotoStore }) {
+  const [photoSettings, setPhotoSettings] = useState(false);
+  const [boardError, setBoardError] = useState("");
+  const [today, setToday] = useState(() => todayInSeoul());
+  useEffect(() => { const timer = setInterval(() => setToday(todayInSeoul()), 60000); return () => clearInterval(timer); }, []);
   const [items, setItems] = useState<Item[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<"todo" | "done">("todo");
   const [editing, setEditing] = useState<Item | null | "new">(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const load = async () => {
-    const { data } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });
+    if (error) { setBoardError("꿈 목록을 불러오지 못했어요."); setLoaded(true); return; }
     setItems(((data ?? []) as Row[]).map(toItem));
     setLoaded(true);
   };
@@ -97,18 +120,23 @@ function Board() {
     setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1 }, colors }), 350);
   };
 
-  const save = async (d: { title: string; desc: string; year: string }) => {
-    const row = { title: d.title, description: d.desc, target_year: d.year };
-    if (editing === "new") {
-      await supabase.from("bucket_items").insert({ ...row, color: Math.floor(Math.random() * 4) });
-      setTab("todo");
-    } else if (editing) {
-      await supabase.from("bucket_items").update(row).eq("id", editing.id);
-    }
+  const save = async (d: { title: string; desc: string; year: string; date: string; author: string }) => {
+    const row = { title: d.title, description: d.desc, target_year: d.date ? d.date.slice(0, 4) : d.year, target_date: d.date || null, author_name: d.author };
+    const result = editing === "new"
+      ? await supabase.from("bucket_items").insert({ ...row, color: Math.floor(Math.random() * 4) })
+      : editing ? await supabase.from("bucket_items").update(row).eq("id", editing.id) : null;
+    if (result?.error) throw new Error("꿈을 저장하지 못했어요. 다시 시도해 주세요.");
+    if (editing === "new") setTab("todo");
     setEditing(null);
-    load();
+    await load();
   };
-  const remove = async (id: string) => { await supabase.from("bucket_items").delete().eq("id", id); setEditing(null); load(); };
+  const remove = async (id: string) => {
+    const paths = photoStore.photos.filter((p) => p.item_id === id).map((p) => p.storage_path);
+    const { error } = await supabase.from("bucket_items").delete().eq("id", id);
+    if (error) throw new Error("꿈을 삭제하지 못했어요.");
+    if (paths.length) await supabase.storage.from("dream-photos").remove(paths);
+    setEditing(null); await load(); await photoStore.reload();
+  };
   const signOut = () => supabase.auth.signOut();
 
   const todo = items.filter((i) => !i.done);
@@ -117,30 +145,32 @@ function Board() {
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-4 pb-16 pt-8 sm:px-6">
-      <div className="flex justify-end">
-        <button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</button>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" size="icon" title="배경 사진 관리" aria-label="배경 사진 관리" onClick={() => setPhotoSettings(true)}><Images /></Button>
+        <Button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</Button>
       </div>
       <header className="mx-auto w-fit rounded-[1.5rem] bg-background/50 px-6 py-4 text-center shadow-soft backdrop-blur-[3px]">
         <p className="text-2xl">👩‍❤️‍👨</p>
         <h1 className="mt-1.5 font-display text-lg text-foreground sm:text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-0.5 text-xs text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
-        <button
+        <Button
           onClick={() => setEditing("new")}
           className="mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-base text-primary-foreground shadow-soft transition active:scale-95 hover:-translate-y-0.5"
         >
           ＋ 새로운 버킷리스트 추가하기
-        </button>
+        </Button>
       </header>
 
       <nav className="sticky top-2 z-10 mx-auto mt-6 grid max-w-sm grid-cols-2 gap-1 rounded-full border bg-card/80 p-1 shadow-soft backdrop-blur">
         {([["todo", "🏃‍♂️ 우리의 꿈", todo.length], ["done", "✨ 이룬 꿈", done.length]] as const).map(([k, label, n]) => (
-          <button
+          <Button
             key={k}
+            variant="ghost"
             onClick={() => setTab(k)}
             className={`rounded-full py-2 font-display text-sm transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
           >
             {label} <span className="text-sm opacity-80">{n}</span>
-          </button>
+          </Button>
         ))}
       </nav>
 
@@ -166,25 +196,47 @@ function Board() {
                 </h3>
                 {it.done && <span className="text-2xl">🏅</span>}
               </div>
+              <p className="mt-1 text-xs text-muted-foreground">✍️ {it.author || "함께"}</p>
               {it.desc && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{it.desc}</p>}
-              <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="rounded-full bg-muted px-3 py-1 font-medium">🗓️ {it.year}년 목표</span>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span className="rounded-full bg-muted px-3 py-1 font-medium">🗓️ {it.date ? it.date.replaceAll("-", ".") : `${it.year}년 목표`}</span>
                 {it.done && <span className="font-medium text-muted-foreground">✨ {it.doneAt}</span>}
               </div>
+              {it.date && !it.done && <p className="mt-2 text-xs font-medium text-muted-foreground">{countdownLabel(it.date, today)}</p>}
+              {it.done && <DreamPhotos store={photoStore} kind="memory" itemId={it.id} />}
               {!it.done && (
-                <button
+                <Button
                   onClick={(e) => { e.stopPropagation(); complete(it.id); }}
                   className="mt-3.5 w-full rounded-xl bg-secondary py-2 font-display text-sm text-secondary-foreground transition active:scale-95 hover:brightness-95"
                 >
                   🎉 완료하기
-                </button>
+                </Button>
               )}
               <BucketFeedback itemId={it.id} preference={it.preference} onPreference={(preference) => setItems((current) => current.map((item) => item.id === it.id ? { ...item, preference } : item))} />
+              <div className="mt-2 flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                <Button type="button" variant="ghost" size="icon" title="꿈 수정" aria-label="꿈 수정" disabled={deleting !== null} onClick={() => setEditing(it)}><Pencil /></Button>
+                <Button type="button" variant="ghost" size="icon" title="꿈 삭제" aria-label="꿈 삭제" className="text-destructive" disabled={deleting !== null} onClick={async () => {
+                  if (!confirm(`“${it.title}” 꿈을 삭제할까요? 답글과 기념 사진도 함께 삭제돼요.`)) return;
+                  setDeleting(it.id); setBoardError("");
+                  try { await remove(it.id); }
+                  catch (e) { setBoardError(e instanceof Error ? e.message : "꿈을 삭제하지 못했어요."); }
+                  finally { setDeleting(null); }
+                }}><Trash2 /></Button>
+              </div>
             </article>
           ))}
         </section>
       )}
 
+      {(boardError || photoStore.error) && <p role="alert" className="mt-4 rounded-md bg-background/90 p-3 text-sm text-destructive">{boardError || photoStore.error}</p>}
+      {photoSettings && <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 backdrop-blur-sm" onClick={() => setPhotoSettings(false)}>
+        <section role="dialog" aria-modal="true" aria-label="배경 사진 관리" className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-lg bg-popover p-5 shadow-soft" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between"><h2 className="font-display text-lg">우리의 배경 사진</h2><Button variant="ghost" size="icon" aria-label="배경 사진 닫기" onClick={() => setPhotoSettings(false)}><X /></Button></div>
+          <img src={coupleBg.url} alt="기본 부부 사진" className="mt-3 h-28 w-full rounded-md object-cover" />
+          <DreamPhotos store={photoStore} kind="background" />
+          {photoStore.error && <p role="alert" className="mt-3 text-sm text-destructive">{photoStore.error}</p>}
+        </section>
+      </div>}
       {editing && (
         <Modal item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSave={save} onDelete={remove} />
       )}
@@ -194,19 +246,30 @@ function Board() {
 
 function Modal({ item, onClose, onSave, onDelete }: {
   item: Item | null; onClose: () => void;
-  onSave: (d: { title: string; desc: string; year: string }) => void; onDelete: (id: string) => void;
+  onSave: (d: { title: string; desc: string; year: string; date: string; author: string }) => Promise<void>; onDelete: (id: string) => Promise<void>;
 }) {
   const [title, setTitle] = useState(item?.title ?? "");
   const [desc, setDesc] = useState(item?.desc ?? "");
   const [year, setYear] = useState(item?.year ?? String(new Date().getFullYear()));
+  const [date, setDate] = useState(item?.date ?? "");
+  const [author, setAuthor] = useState(item?.author ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const submit = async () => {
+    setBusy(true); setError("");
+    try { await onSave({ title: title.trim(), desc: desc.trim(), year, date, author }); }
+    catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했어요."); }
+    finally { setBusy(false); }
+  };
   const field = "mt-1 w-full rounded-xl border bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 backdrop-blur-sm animate-in fade-in sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 backdrop-blur-sm animate-in fade-in sm:items-center" onClick={() => { if (!busy) onClose(); }}>
       <form
         onClick={(e) => e.stopPropagation()}
-        onSubmit={(e) => { e.preventDefault(); if (title.trim()) onSave({ title: title.trim(), desc: desc.trim(), year }); }}
-        className="w-full max-w-md rounded-t-3xl bg-popover p-6 shadow-soft animate-in slide-in-from-bottom-10 sm:rounded-3xl"
+        role="dialog" aria-modal="true" aria-label={item ? "버킷리스트 수정" : "새로운 꿈 적기"}
+        onSubmit={(e) => { e.preventDefault(); if (title.trim() && !busy) void submit(); }}
+        className="max-h-[90dvh] overflow-y-auto w-full max-w-md rounded-t-3xl bg-popover p-6 shadow-soft animate-in slide-in-from-bottom-10 sm:rounded-3xl"
       >
         <h2 className="font-display text-2xl">{item ? "✏️ 버킷리스트 수정" : "💌 새로운 꿈 적기"}</h2>
         <label className="mt-4 block text-sm">제목
@@ -215,17 +278,22 @@ function Modal({ item, onClose, onSave, onDelete }: {
         <label className="mt-3 block text-sm">간단한 설명
           <textarea className={field} rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="어떤 모습이면 좋을까요?" />
         </label>
-        <label className="mt-3 block text-sm">목표 연도
-          <input type="number" className={field} value={year} onChange={(e) => setYear(e.target.value)} min={2000} max={2100} required />
+        <fieldset className="mt-3"><legend className="text-sm">작성자</legend><div className="mt-2 flex flex-wrap gap-2">{[...WRITERS, "함께"].map((name) => <Button key={name} type="button" variant={(author || "함께") === name ? "secondary" : "outline"} size="sm" aria-pressed={(author || "함께") === name} onClick={() => setAuthor(name === "함께" ? "" : name)}>{name}</Button>)}</div></fieldset>
+        <label className="mt-3 block text-sm">목표 날짜
+          <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} />
         </label>
+        {!date && <label className="mt-3 block text-sm">목표 연도
+          <input type="number" className={field} value={year} onChange={(e) => setYear(e.target.value)} min={2000} max={2100} required />
+        </label>}
+        {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
         <div className="mt-6 flex gap-2">
           {item && (
-            <button type="button" onClick={() => confirm("이 꿈을 삭제할까요?") && onDelete(item.id)} className="rounded-xl bg-destructive/10 px-4 py-3 text-destructive">
+            <Button type="button" disabled={busy} onClick={async () => { if (!confirm("이 꿈을 삭제할까요?")) return; setBusy(true); try { await onDelete(item.id); } catch (e) { setError(e instanceof Error ? e.message : "삭제하지 못했어요."); } finally { setBusy(false); } }} className="rounded-xl bg-destructive/10 px-4 py-3 text-destructive">
               🗑️ 삭제
-            </button>
+            </Button>
           )}
-          <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-muted py-3">취소</button>
-          <button type="submit" className="flex-1 rounded-xl bg-primary py-3 font-display text-primary-foreground">저장</button>
+          <Button variant="ghost" type="button" disabled={busy} onClick={onClose} className="flex-1 rounded-xl bg-muted py-3">취소</Button>
+          <Button type="submit" disabled={busy} className="flex-1 rounded-xl bg-primary py-3 font-display text-primary-foreground">저장</Button>
         </div>
       </form>
     </div>
