@@ -83,7 +83,7 @@ function Login() {
         <p className="text-5xl">👩‍❤️‍👨</p>
         <h1 className="mt-3 font-display text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-2 text-sm text-muted-foreground">함께 쓰는 계정으로 로그인하면<br />어디서든 같은 꿈을 볼 수 있어요 🌙</p>
-        <Button onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
+        <Button variant="ghost" onClick={signIn} className="mt-6 w-full rounded-full bg-card py-3 font-display text-lg shadow-soft transition active:scale-95">
           🔑 구글로 로그인
         </Button>
         {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
@@ -165,6 +165,7 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
         {([["todo", "🏃‍♂️ 우리의 꿈", todo.length], ["done", "✨ 이룬 꿈", done.length]] as const).map(([k, label, n]) => (
           <Button
             key={k}
+            variant="ghost"
             onClick={() => setTab(k)}
             className={`rounded-full py-2 font-display text-sm transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
           >
@@ -291,7 +292,7 @@ function Modal({ item, onClose, onSave, onDelete }: {
               🗑️ 삭제
             </Button>
           )}
-          <Button type="button" disabled={busy} onClick={onClose} className="flex-1 rounded-xl bg-muted py-3">취소</Button>
+          <Button variant="ghost" type="button" disabled={busy} onClick={onClose} className="flex-1 rounded-xl bg-muted py-3">취소</Button>
           <Button type="submit" disabled={busy} className="flex-1 rounded-xl bg-primary py-3 font-display text-primary-foreground">저장</Button>
         </div>
       </form>
