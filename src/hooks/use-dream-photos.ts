@@ -33,7 +33,6 @@ export function useDreamPhotos(userId: string | undefined) {
       const url = signed?.[index]?.signedUrl;
       return url && (p.kind === "background" || p.kind === "memory") ? [{ ...p, kind: p.kind, url } as DreamPhoto] : [];
     }));
-    setError("");
   }, [userId]);
   useEffect(() => { void load(); const timer = setInterval(() => void load(), 45 * 60 * 1000); return () => clearInterval(timer); }, [load]);
   const upload = async (files: FileList | File[], kind: "background" | "memory", itemId?: string) => {

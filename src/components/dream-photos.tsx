@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ImagePlus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DreamPhoto, useDreamPhotos } from "@/hooks/use-dream-photos";
@@ -20,10 +21,10 @@ export function DreamPhotos({ store, kind, itemId }: { store: PhotoStore; kind: 
         <Button type="button" variant="ghost" className="h-full w-full p-0" aria-label="사진 크게 보기" onClick={() => setViewing(photo)}><img src={photo.url} alt={kind === "memory" ? "이룬 꿈 기념 사진" : "우리 배경 사진"} className="h-full w-full object-cover" /></Button>
         <Button type="button" size="icon" variant="outline" className="absolute right-1 top-1 h-7 w-7 bg-background/90" title="사진 삭제" aria-label="사진 삭제" disabled={store.busy} onClick={() => { if (confirm("이 사진을 삭제할까요?")) void store.remove(photo); }}><Trash2 /></Button>
       </div>)}</div>}
-      {viewing && <div role="dialog" aria-modal="true" aria-label="사진 크게 보기" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/80 p-5" onClick={() => setViewing(null)}>
+      {viewing && createPortal(<div role="dialog" aria-modal="true" aria-label="사진 크게 보기" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/80 p-5" onClick={(event) => { event.stopPropagation(); setViewing(null); }}>
         <Button type="button" variant="outline" size="icon" aria-label="사진 닫기" className="absolute right-4 top-4" onClick={() => setViewing(null)}><X /></Button>
         <img src={viewing.url} alt="우리의 추억" className="max-h-[85dvh] max-w-full object-contain" />
-      </div>}
+      </div>, document.body)}
     </div>
   );
 }
