@@ -137,7 +137,7 @@ function Board() {
           <button
             key={k}
             onClick={() => setTab(k)}
-            className={`rounded-full py-2.5 font-display transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
+            className={`rounded-full py-2 font-display text-sm transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
           >
             {label} <span className="text-sm opacity-80">{n}</span>
           </button>
@@ -174,7 +174,7 @@ function Board() {
               {!it.done && (
                 <button
                   onClick={(e) => { e.stopPropagation(); complete(it.id); }}
-                  className="mt-4 w-full rounded-xl bg-secondary py-2.5 font-display text-secondary-foreground transition active:scale-95 hover:brightness-95"
+                  className="mt-3.5 w-full rounded-xl bg-secondary py-2 font-display text-sm text-secondary-foreground transition active:scale-95 hover:brightness-95"
                 >
                   🎉 완료하기
                 </button>
