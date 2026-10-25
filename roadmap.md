@@ -6,4 +6,4 @@
 - [x] Add shared background-photo upload and rotation.
 - [x] Add writer selection and exact target dates with countdowns.
 - [x] Verify all four additions on the signed-in board.
-- [ ] Expose and verify edit/delete controls in both dream tabs.
+- [x] Expose and verify edit/delete controls in both dream tabs.
