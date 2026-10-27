@@ -46,12 +46,12 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number; preference: number; date: string | null; author: string };
+type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; doneShort?: string | undefined; color: number; preference: number; date: string | null; author: string };
 const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
 const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
 type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number; preference: number; target_date: string | null; author_name: string };
-const toItem = (r: Row): Item => ({ id: r.id, date: r.target_date, author: r.author_name, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
+const toItem = (r: Row): Item => ({ id: r.id, date: r.target_date, author: r.author_name, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined, doneShort: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" }).replaceAll(" ", "") : undefined });
 
 function Index() {
   const [session, setSession] = useState<Session | null>(null);
@@ -104,6 +104,8 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [detail, setDetail] = useState<Item | null>(null);
   const [listOpen, setListOpen] = useState<boolean | null>(null);
+  const [listTab, setListTab] = useState<"todo" | "done" | null>(null);
+
   useEffect(() => { setListOpen(window.matchMedia("(min-width: 1024px)").matches); }, []);
 
   const load = async () => {
@@ -145,9 +147,12 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const todo = items.filter((i) => !i.done);
   const done = items.filter((i) => i.done);
   const list = tab === "todo" ? todo : done;
+  const todoSorted = [...todo].sort(bySchedule);
+  const doneSorted = [...done].sort(byDoneAt);
+
 
   return (
-    <main className={`mx-auto min-h-screen max-w-5xl px-4 pb-32 pt-8 sm:px-6 ${listOpen ? "lg:pl-72" : ""}`}>
+    <main className={`mx-auto min-h-screen max-w-5xl px-4 pt-8 sm:px-6 ${listOpen ? "lg:pl-72 max-lg:pb-[46dvh]" : "pb-32"}`}>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="icon" title="배경 사진 관리" aria-label="배경 사진 관리" onClick={() => setPhotoSettings(true)}><Images /></Button>
         <Button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</Button>
@@ -243,10 +248,21 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
       {editing && (
         <Modal item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSave={save} onDelete={remove} />
       )}
-      <DreamSidebar open={listOpen} onToggle={setListOpen} todo={todo} done={done} today={today} onOpen={setDetail} onShowTab={setTab} />
+      <DreamSidebar open={listOpen} onToggle={setListOpen} todo={todoSorted} done={doneSorted} today={today} onOpen={setDetail} onShowAll={setListTab} />
+      {listTab && (
+        <DreamListDialog
+          label={listTab === "todo" ? "🏃‍♂️ 우리의 꿈" : "✨ 이룬 꿈"}
+          items={listTab === "todo" ? todoSorted : doneSorted}
+          today={today}
+          onClose={() => setListTab(null)}
+          onOpen={setDetail}
+        />
+      )}
       {detail && (
         <DreamDetail item={detail} today={today} onClose={() => setDetail(null)} onEdit={(it) => { setDetail(null); setEditing(it); }} />
       )}
+
+
     </main>
   );
 }
@@ -311,11 +327,65 @@ function scheduleLabel(it: Item): string {
   return it.date ? it.date.replaceAll("-", ".") : `${it.year}년 목표`;
 }
 
-function DreamSidebar({ open, onToggle, todo, done, today, onOpen, onShowTab }: {
+const bySchedule = (a: Item, b: Item) => (a.date ?? a.year).localeCompare(b.date ?? b.year);
+const byDoneAt = (a: Item, b: Item) => (b.doneAt ?? "").localeCompare(a.doneAt ?? "");
+
+function shortSchedule(it: Item): string {
+  if (it.done) return it.doneShort ? `✨ ${it.doneShort}` : "✨ 완료";
+  if (it.date) return it.date.slice(5).replaceAll("-", ".");
+  return `${it.year}년`;
+}
+
+
+
+function DreamPanel({ label, tab, items, empty, today, onOpen, onShowAll }: {
+  label: string; tab: "todo" | "done"; items: Item[]; empty: string; today: string;
+  onOpen: (item: Item) => void; onShowAll: (tab: "todo" | "done") => void;
+}) {
+  const preview = items.slice(0, 3);
+  return (
+    <section aria-label={`${label} 목록`} className="rounded-2xl bg-background/85 p-3 shadow-soft backdrop-blur-md">
+      <div className="flex items-center justify-between gap-2 px-1">
+        <h2 className="font-display text-sm">{label}</h2>
+        <span className="text-xs text-muted-foreground">{items.length}</span>
+      </div>
+      {preview.length === 0 ? (
+        <p className="px-1 py-2 text-xs text-muted-foreground">{empty}</p>
+      ) : (
+        <ul className="mt-1 space-y-0.5">
+          {preview.map((it) => (
+            <li key={it.id}>
+              <button
+                onClick={() => onOpen(it)}
+                title={`${it.title} · ${scheduleLabel(it)}${!it.done && it.date ? ` · ${countdownLabel(it.date, today)}` : ""}`}
+                className="flex w-full items-baseline gap-2 rounded-lg px-2 py-1 text-left transition hover:bg-card/80 active:scale-[0.98]"
+              >
+                <span className="truncate text-xs leading-snug">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</span>
+                <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">{shortSchedule(it)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+
+      )}
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => onShowAll(tab)}
+        className="mt-1 w-full rounded-lg bg-muted/70 py-1 font-display text-[11px] transition hover:bg-muted active:scale-[0.98]"
+      >
+        전체 {items.length}개 보기
+      </Button>
+
+    </section>
+  );
+}
+
+function DreamSidebar({ open, onToggle, todo, done, today, onOpen, onShowAll }: {
   open: boolean | null; onToggle: (open: boolean) => void;
   todo: Item[]; done: Item[]; today: string;
   onOpen: (item: Item) => void;
-  onShowTab: (tab: "todo" | "done") => void;
+  onShowAll: (tab: "todo" | "done") => void;
 }) {
   if (open === null) return null;
   if (!open) return (
@@ -326,50 +396,58 @@ function DreamSidebar({ open, onToggle, todo, done, today, onOpen, onShowTab }: 
       <List className="size-4" /> 꿈 목록
     </button>
   );
-  const todoList = [...todo].sort((a, b) => (a.date ?? a.year).localeCompare(b.date ?? b.year)).slice(0, 5);
-  const doneList = [...done].sort((a, b) => (b.doneAt ?? "").localeCompare(a.doneAt ?? "")).slice(0, 5);
-  const section = (label: string, tab: "todo" | "done", items: Item[], empty: string) => (
-    <section className="mt-1">
-      <button onClick={() => onShowTab(tab)} className="flex w-full items-center gap-1 rounded-md px-1 py-1 text-left font-display text-xs text-foreground transition hover:bg-muted/60">
-        {label} <span className="text-muted-foreground">{items.length === 5 ? `${items.length}+` : items.length}</span>
-      </button>
-      {items.length === 0 ? (
-        <p className="px-1 py-1 text-xs text-muted-foreground">{empty}</p>
-      ) : (
-        <ul className="mt-0.5 space-y-0.5">
-          {items.map((it) => (
-            <li key={it.id}>
-              <button
-                onClick={() => onOpen(it)}
-                className="w-full rounded-lg px-2 py-1.5 text-left transition hover:bg-card/80 active:scale-[0.98]"
-              >
-                <p className="truncate text-sm leading-snug">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</p>
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                  🗓️ {scheduleLabel(it)}
-                  {!it.done && it.date && ` · ${countdownLabel(it.date, today)}`}
-                  {it.done && it.doneAt && ` · ✨ ${it.doneAt}`}
-                </p>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
   return (
-    <aside
-      aria-label="꿈 목록"
-      className="fixed bottom-4 left-4 z-40 max-h-[70dvh] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl bg-background/85 p-3 shadow-soft backdrop-blur-md"
-    >
+    <div className="fixed bottom-4 left-4 z-40 flex max-h-[78dvh] w-72 max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-y-auto pb-1">
       <div className="flex items-center justify-between px-1">
-        <h2 className="font-display text-sm">📚 꿈 목록</h2>
-        <Button type="button" variant="ghost" size="icon" title="목록 접기" aria-label="목록 접기" onClick={() => onToggle(false)} className="size-7"><ChevronDown /></Button>
+        <span className="font-display text-xs text-muted-foreground">📚 꿈 목록</span>
+        <Button type="button" variant="ghost" size="icon" title="목록 접기" aria-label="목록 접기" onClick={() => onToggle(false)} className="size-6 rounded-full bg-background/80"><ChevronDown /></Button>
       </div>
-      {section("🏃‍♂️ 우리의 꿈", "todo", todoList, "아직 적은 꿈이 없어요")}
-      {section("✨ 이룬 꿈", "done", doneList, "아직 이룬 꿈이 없어요")}
-    </aside>
+      <DreamPanel label="🏃‍♂️ 우리의 꿈" tab="todo" items={todo} empty="아직 적은 꿈이 없어요" today={today} onOpen={onOpen} onShowAll={onShowAll} />
+      <DreamPanel label="✨ 이룬 꿈" tab="done" items={done} empty="아직 이룬 꿈이 없어요" today={today} onOpen={onOpen} onShowAll={onShowAll} />
+    </div>
   );
 }
+
+function DreamListDialog({ label, items, today, onClose, onOpen }: {
+  label: string; items: Item[]; today: string;
+  onClose: () => void; onOpen: (item: Item) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 p-4 backdrop-blur-sm animate-in fade-in sm:items-center" onClick={onClose}>
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${label} 전체 목록`}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-popover p-5 shadow-soft animate-in slide-in-from-bottom-10"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-display text-lg">{label} <span className="text-sm text-muted-foreground">{items.length}</span></h2>
+          <Button type="button" variant="ghost" size="icon" title="닫기" aria-label="닫기" onClick={onClose}><X /></Button>
+        </div>
+        {items.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">아직 목록이 없어요 🌱</p>
+        ) : (
+          <ul className="mt-3 space-y-1">
+            {items.map((it) => (
+              <li key={it.id}>
+                <button onClick={() => onOpen(it)} className="w-full rounded-xl px-3 py-2 text-left transition hover:bg-muted/70 active:scale-[0.99]">
+                  <p className="truncate text-sm leading-snug">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</p>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    ✍️ {it.author || "함께"} · 🗓️ {scheduleLabel(it)}
+                    {!it.done && it.date && ` · ${countdownLabel(it.date, today)}`}
+                    {it.done && it.doneAt && ` · ✨ ${it.doneAt}`}
+                  </p>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
 
 function DreamDetail({ item, today, onClose, onEdit }: {
   item: Item; today: string; onClose: () => void; onEdit: (item: Item) => void;

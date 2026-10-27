@@ -7,3 +7,4 @@
 - [x] Add writer selection and exact target dates with countdowns.
 - [x] Verify all four additions on the signed-in board.
 - [x] Expose and verify edit/delete controls in both dream tabs.
+- [x] Split the corner dream widget into two 3-item lists with full-list dialogs.
