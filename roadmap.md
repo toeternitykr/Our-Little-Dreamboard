@@ -8,3 +8,4 @@
 - [x] Verify all four additions on the signed-in board.
 - [x] Expose and verify edit/delete controls in both dream tabs.
 - [x] Split the corner dream widget into two 3-item lists with full-list dialogs.
+- [x] Move the dream detail panel to a compact right-side card on wide screens.
