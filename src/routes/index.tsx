@@ -147,7 +147,7 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const list = tab === "todo" ? todo : done;
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-4 pb-16 pt-8 sm:px-6">
+    <main className={`mx-auto min-h-screen max-w-5xl px-4 pb-32 pt-8 sm:px-6 ${listOpen ? "lg:pl-72" : ""}`}>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="icon" title="배경 사진 관리" aria-label="배경 사진 관리" onClick={() => setPhotoSettings(true)}><Images /></Button>
         <Button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</Button>
