@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Images, X, Pencil, Trash2 } from "lucide-react";
+import { Images, X, Pencil, Trash2, ChevronDown, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DreamPhotos } from "@/components/dream-photos";
 import type { PhotoStore } from "@/components/dream-photos";
@@ -102,6 +102,9 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const [tab, setTab] = useState<"todo" | "done">("todo");
   const [editing, setEditing] = useState<Item | null | "new">(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [detail, setDetail] = useState<Item | null>(null);
+  const [listOpen, setListOpen] = useState<boolean | null>(null);
+  useEffect(() => { setListOpen(window.matchMedia("(min-width: 1024px)").matches); }, []);
 
   const load = async () => {
     const { data, error } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });
