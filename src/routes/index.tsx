@@ -104,6 +104,8 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [detail, setDetail] = useState<Item | null>(null);
   const [listOpen, setListOpen] = useState<boolean | null>(null);
+  const [listTab, setListTab] = useState<"todo" | "done" | null>(null);
+
   useEffect(() => { setListOpen(window.matchMedia("(min-width: 1024px)").matches); }, []);
 
   const load = async () => {
@@ -145,6 +147,9 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
   const todo = items.filter((i) => !i.done);
   const done = items.filter((i) => i.done);
   const list = tab === "todo" ? todo : done;
+  const todoSorted = [...todo].sort(bySchedule);
+  const doneSorted = [...done].sort(byDoneAt);
+
 
   return (
     <main className={`mx-auto min-h-screen max-w-5xl px-4 pb-32 pt-8 sm:px-6 ${listOpen ? "lg:pl-72" : ""}`}>
@@ -243,10 +248,20 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
       {editing && (
         <Modal item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSave={save} onDelete={remove} />
       )}
-      <DreamSidebar open={listOpen} onToggle={setListOpen} todo={todo} done={done} today={today} onOpen={setDetail} onShowTab={setTab} />
+      <DreamSidebar open={listOpen} onToggle={setListOpen} todo={todoSorted} done={doneSorted} today={today} onOpen={setDetail} onShowAll={setListTab} />
       {detail && (
         <DreamDetail item={detail} today={today} onClose={() => setDetail(null)} onEdit={(it) => { setDetail(null); setEditing(it); }} />
       )}
+      {listTab && (
+        <DreamListDialog
+          label={listTab === "todo" ? "🏃‍♂️ 우리의 꿈" : "✨ 이룬 꿈"}
+          items={listTab === "todo" ? todoSorted : doneSorted}
+          today={today}
+          onClose={() => setListTab(null)}
+          onOpen={setDetail}
+        />
+      )}
+
     </main>
   );
 }
@@ -310,6 +325,10 @@ function Modal({ item, onClose, onSave, onDelete }: {
 function scheduleLabel(it: Item): string {
   return it.date ? it.date.replaceAll("-", ".") : `${it.year}년 목표`;
 }
+
+const bySchedule = (a: Item, b: Item) => (a.date ?? a.year).localeCompare(b.date ?? b.year);
+const byDoneAt = (a: Item, b: Item) => (b.doneAt ?? "").localeCompare(a.doneAt ?? "");
+
 
 function DreamSidebar({ open, onToggle, todo, done, today, onOpen, onShowTab }: {
   open: boolean | null; onToggle: (open: boolean) => void;
