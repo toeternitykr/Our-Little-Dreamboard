@@ -249,9 +249,6 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
         <Modal item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSave={save} onDelete={remove} />
       )}
       <DreamSidebar open={listOpen} onToggle={setListOpen} todo={todoSorted} done={doneSorted} today={today} onOpen={setDetail} onShowAll={setListTab} />
-      {detail && (
-        <DreamDetail item={detail} today={today} onClose={() => setDetail(null)} onEdit={(it) => { setDetail(null); setEditing(it); }} />
-      )}
       {listTab && (
         <DreamListDialog
           label={listTab === "todo" ? "🏃‍♂️ 우리의 꿈" : "✨ 이룬 꿈"}
@@ -261,6 +258,10 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
           onOpen={setDetail}
         />
       )}
+      {detail && (
+        <DreamDetail item={detail} today={today} onClose={() => setDetail(null)} onEdit={(it) => { setDetail(null); setEditing(it); }} />
+      )}
+
 
     </main>
   );
