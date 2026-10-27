@@ -152,7 +152,7 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
 
 
   return (
-    <main className={`mx-auto min-h-screen max-w-5xl px-4 pb-32 pt-8 sm:px-6 ${listOpen ? "lg:pl-72" : ""}`}>
+    <main className={`mx-auto min-h-screen max-w-5xl px-4 pt-8 sm:px-6 ${listOpen ? "lg:pl-72 max-lg:pb-[46dvh]" : "pb-32"}`}>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="icon" title="배경 사진 관리" aria-label="배경 사진 관리" onClick={() => setPhotoSettings(true)}><Images /></Button>
         <Button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</Button>
@@ -330,6 +330,13 @@ function scheduleLabel(it: Item): string {
 const bySchedule = (a: Item, b: Item) => (a.date ?? a.year).localeCompare(b.date ?? b.year);
 const byDoneAt = (a: Item, b: Item) => (b.doneAt ?? "").localeCompare(a.doneAt ?? "");
 
+function shortSchedule(it: Item): string {
+  if (it.done) return it.doneShort ? `✨ ${it.doneShort}` : "✨ 완료";
+  if (it.date) return it.date.slice(5).replaceAll("-", ".");
+  return `${it.year}년`;
+}
+
+
 
 function DreamPanel({ label, tab, items, empty, today, onOpen, onShowAll }: {
   label: string; tab: "todo" | "done"; items: Item[]; empty: string; today: string;
@@ -350,27 +357,26 @@ function DreamPanel({ label, tab, items, empty, today, onOpen, onShowAll }: {
             <li key={it.id}>
               <button
                 onClick={() => onOpen(it)}
-                className="w-full rounded-lg px-2 py-1.5 text-left transition hover:bg-card/80 active:scale-[0.98]"
+                title={`${it.title} · ${scheduleLabel(it)}${!it.done && it.date ? ` · ${countdownLabel(it.date, today)}` : ""}`}
+                className="flex w-full items-baseline gap-2 rounded-lg px-2 py-1 text-left transition hover:bg-card/80 active:scale-[0.98]"
               >
-                <p className="truncate text-sm leading-snug">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</p>
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                  🗓️ {scheduleLabel(it)}
-                  {!it.done && it.date && ` · ${countdownLabel(it.date, today)}`}
-                  {it.done && it.doneAt && ` · ✨ ${it.doneAt}`}
-                </p>
+                <span className="truncate text-xs leading-snug">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</span>
+                <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">{shortSchedule(it)}</span>
               </button>
             </li>
           ))}
         </ul>
+
       )}
       <Button
         type="button"
         variant="ghost"
         onClick={() => onShowAll(tab)}
-        className="mt-1.5 w-full rounded-lg bg-muted/70 py-1.5 font-display text-xs transition hover:bg-muted active:scale-[0.98]"
+        className="mt-1 w-full rounded-lg bg-muted/70 py-1 font-display text-[11px] transition hover:bg-muted active:scale-[0.98]"
       >
         전체 {items.length}개 보기
       </Button>
+
     </section>
   );
 }
