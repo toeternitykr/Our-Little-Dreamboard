@@ -243,6 +243,10 @@ function Board({ photoStore }: { photoStore: PhotoStore }) {
       {editing && (
         <Modal item={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSave={save} onDelete={remove} />
       )}
+      <DreamSidebar open={listOpen} onToggle={setListOpen} todo={todo} done={done} today={today} onOpen={setDetail} onShowTab={setTab} />
+      {detail && (
+        <DreamDetail item={detail} today={today} onClose={() => setDetail(null)} onEdit={(it) => { setDetail(null); setEditing(it); }} />
+      )}
     </main>
   );
 }
