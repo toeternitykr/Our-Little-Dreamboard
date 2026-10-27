@@ -46,12 +46,12 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; color: number; preference: number; date: string | null; author: string };
+type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; doneShort?: string | undefined; color: number; preference: number; date: string | null; author: string };
 const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
 const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
 type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number; preference: number; target_date: string | null; author_name: string };
-const toItem = (r: Row): Item => ({ id: r.id, date: r.target_date, author: r.author_name, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined });
+const toItem = (r: Row): Item => ({ id: r.id, date: r.target_date, author: r.author_name, title: r.title, desc: r.description, year: r.target_year, done: r.done, color: r.color, preference: r.preference, doneAt: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR") : undefined, doneShort: r.done_at ? new Date(r.done_at).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" }).replaceAll(" ", "") : undefined });
 
 function Index() {
   const [session, setSession] = useState<Session | null>(null);
