@@ -18,3 +18,4 @@
 - Enforce shared-account ownership through restrictive RLS guards and explicit operation grants; child rows also require an owned parent, and replies/photo metadata are insert/delete only.
 - Theme colors, gradients, glass borders, and shadows live in src/styles.css; Button variants consume them and the root content follows the device color-scheme preference for consistent light/dark surfaces.
 - Keep shared typography and intrinsic dream-grid sizing in global CSS utilities; feature views use those utilities so sparse and dense boards retain consistent readable columns.
+- Keep interaction timing and custom fade/scale entrances in global motion utilities, consumed by feature views and shared controls, with a reduced-motion fallback to avoid inconsistent movement.
