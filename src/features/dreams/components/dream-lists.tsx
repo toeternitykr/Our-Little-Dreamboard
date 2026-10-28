@@ -10,7 +10,7 @@ function DreamPanel({ label, tab, items, empty, today, onOpen, onShowAll }: {
 }) {
   const preview = items.slice(0, 3);
   return (
-    <section aria-label={`${label} 목록`} className="rounded-2xl bg-background/85 p-3 shadow-soft backdrop-blur-md">
+    <section aria-label={`${label} 목록`} className="rounded-lg border border-glass-border bg-background/95 p-3 shadow-soft backdrop-blur-md">
       <div className="flex items-center justify-between gap-2 px-1">
         <h2 className="font-display text-sm">{label}</h2>
         <span className="text-xs text-muted-foreground">{items.length}</span>
@@ -85,7 +85,7 @@ export function DreamListDialog({ label, items, today, onClose, onOpen }: {
         aria-modal="true"
         aria-label={`${label} 전체 목록`}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-popover p-5 shadow-soft animate-in slide-in-from-bottom-10"
+        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-5 shadow-soft backdrop-blur-md animate-in slide-in-from-bottom-10"
       >
         <div className="flex items-center justify-between gap-2">
           <h2 className="font-display text-lg">{label} <span className="text-sm text-muted-foreground">{items.length}</span></h2>

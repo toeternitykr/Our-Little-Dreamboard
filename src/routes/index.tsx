@@ -28,6 +28,13 @@ function Index() {
   const [ready, setReady] = useState(false);
   const photoStore = useDreamPhotos(session?.user.id);
   useEffect(() => {
+    const preference = window.matchMedia("(prefers-color-scheme: dark)");
+    const applyTheme = () => document.documentElement.classList.toggle("dark", preference.matches);
+    applyTheme();
+    preference.addEventListener("change", applyTheme);
+    return () => preference.removeEventListener("change", applyTheme);
+  }, []);
+  useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     supabase.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
     return () => data.subscription.unsubscribe();

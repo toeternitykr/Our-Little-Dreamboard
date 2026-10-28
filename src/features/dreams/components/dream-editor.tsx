@@ -28,7 +28,7 @@ export function DreamEditor({ item, onClose, onSave, onDelete }: {
         onClick={(e) => e.stopPropagation()}
         role="dialog" aria-modal="true" aria-label={item ? "버킷리스트 수정" : "새로운 꿈 적기"}
         onSubmit={(e) => { e.preventDefault(); if (title.trim() && !busy) void submit(); }}
-        className="max-h-[90dvh] overflow-y-auto w-full max-w-md rounded-t-3xl bg-popover p-6 shadow-soft animate-in slide-in-from-bottom-10 sm:rounded-3xl"
+        className="max-h-[90dvh] overflow-y-auto w-full max-w-md rounded-t-lg border border-glass-border bg-popover/95 p-6 shadow-soft backdrop-blur-md animate-in slide-in-from-bottom-10 sm:rounded-lg"
       >
         <h2 className="font-display text-2xl">{item ? "✏️ 버킷리스트 수정" : "💌 새로운 꿈 적기"}</h2>
         <label className="mt-4 block text-sm">제목
@@ -47,7 +47,7 @@ export function DreamEditor({ item, onClose, onSave, onDelete }: {
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
         <div className="mt-6 flex gap-2">
           {item && (
-            <Button type="button" disabled={busy} onClick={async () => { if (!confirm("이 꿈을 삭제할까요?")) return; setBusy(true); try { await onDelete(item.id); } catch (e) { setError(e instanceof Error ? e.message : "삭제하지 못했어요."); } finally { setBusy(false); } }} className="rounded-xl bg-destructive/10 px-4 py-3 text-destructive">
+            <Button variant="ghost" type="button" disabled={busy} onClick={async () => { if (!confirm("이 꿈을 삭제할까요?")) return; setBusy(true); try { await onDelete(item.id); } catch (e) { setError(e instanceof Error ? e.message : "삭제하지 못했어요."); } finally { setBusy(false); } }} className="rounded-xl bg-destructive/10 px-4 py-3 text-destructive">
               🗑️ 삭제
             </Button>
           )}

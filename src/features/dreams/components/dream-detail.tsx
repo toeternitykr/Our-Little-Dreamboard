@@ -14,7 +14,7 @@ export function DreamDetail({ item, today, onClose, onEdit }: {
         aria-modal="true"
         aria-label="꿈 자세히 보기"
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-popover p-6 shadow-soft animate-in slide-in-from-bottom-10 lg:mt-16 lg:mr-2 lg:max-h-[80dvh] lg:w-72 lg:rounded-2xl lg:p-4 lg:slide-in-from-bottom-0 lg:slide-in-from-right-10"
+        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 shadow-soft backdrop-blur-md animate-in slide-in-from-bottom-10 lg:mt-16 lg:mr-2 lg:max-h-[80dvh] lg:w-72 lg:p-4 lg:slide-in-from-bottom-0 lg:slide-in-from-right-10"
       >
         <div className="flex items-start justify-between gap-1.5">
           <h2 className="font-display text-xl leading-snug lg:text-sm">{EMOJIS[item.title.length % EMOJIS.length]} {item.title}</h2>

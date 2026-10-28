@@ -16,7 +16,7 @@ export function PhotoBg({ photos }: { photos: PhotoStore["photos"] }) {
   }, [sourceKey]);
   return <div aria-hidden className="fixed inset-0 -z-10">
     {sources.map((url, index) => <img key={url} src={url} alt="" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 motion-reduce:transition-none ${index === active ? "opacity-100" : "opacity-0"}`} />)}
-    <div className="absolute inset-0 bg-background/12 backdrop-blur-[1px]" />
+    <div className="absolute inset-0 bg-background/12 dark:bg-background/40" />
   </div>;
 }
 

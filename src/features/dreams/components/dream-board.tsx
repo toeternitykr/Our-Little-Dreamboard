@@ -41,7 +41,7 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
   const complete = async (id: string) => {
     await supabase.from("bucket_items").update({ done: true, done_at: new Date().toISOString() }).eq("id", id);
     load();
-    const colors = ["#f4a492", "#a8e0cf", "#fbe3a1", "#f7c6d0"];
+    const colors = getComputedStyle(document.documentElement).getPropertyValue("--confetti-colors").split(",").map((color) => color.trim());
     confetti({ particleCount: 140, spread: 80, origin: { y: 0.7 }, colors });
     setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 60, origin: { x: 0 }, colors }), 200);
     setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1 }, colors }), 350);
@@ -77,9 +77,9 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
     <main className={`mx-auto min-h-screen max-w-5xl px-4 pt-8 sm:px-6 ${listOpen ? "lg:pl-72 max-lg:pb-[46dvh]" : "pb-32"}`}>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="icon" title="배경 사진 관리" aria-label="배경 사진 관리" onClick={() => setPhotoSettings(true)}><Images /></Button>
-        <Button onClick={signOut} className="rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">👋 로그아웃</Button>
+        <Button variant="outline" onClick={signOut} className="rounded-full px-4 py-1.5 text-sm">👋 로그아웃</Button>
       </div>
-      <header className="mx-auto w-fit rounded-[1.5rem] bg-background/50 px-6 py-4 text-center shadow-soft backdrop-blur-[3px]">
+      <header className="mx-auto w-fit rounded-2xl border border-glass-border bg-background/85 px-6 py-4 text-center shadow-soft backdrop-blur-md">
         <p className="text-2xl">👩‍❤️‍👨</p>
         <h1 className="mt-1.5 font-display text-lg text-foreground sm:text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
         <p className="mt-0.5 text-xs text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
@@ -91,13 +91,13 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
         </Button>
       </header>
 
-      <nav className="sticky top-2 z-10 mx-auto mt-6 grid max-w-sm grid-cols-2 gap-1 rounded-full border bg-card/80 p-1 shadow-soft backdrop-blur">
+      <nav className="sticky top-2 z-10 mx-auto mt-6 grid max-w-sm grid-cols-2 gap-1 rounded-full border border-glass-border bg-card/90 p-1 shadow-soft backdrop-blur-md">
         {([["todo", "🏃‍♂️ 우리의 꿈", todo.length], ["done", "✨ 이룬 꿈", done.length]] as const).map(([k, label, n]) => (
           <Button
             key={k}
-            variant="ghost"
+            variant={tab === k ? (k === "todo" ? "default" : "secondary") : "ghost"}
             onClick={() => setTab(k)}
-            className={`rounded-full py-2 font-display text-sm transition ${tab === k ? (k === "todo" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground") : "text-muted-foreground"}`}
+            className={`rounded-full py-2 font-display text-sm ${tab !== k ? "text-muted-foreground" : ""}`}
           >
             {label} <span className="text-sm opacity-80">{n}</span>
           </Button>
@@ -117,7 +117,7 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
             <article
               key={it.id}
               onClick={() => setEditing(it)}
-              className={`relative cursor-pointer rounded-2xl p-4 pt-6 shadow-soft transition hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card" : NOTES[it.color % 4]} ${idx % 2 ? "rotate-1" : "-rotate-1"} hover:rotate-0`}
+              className={`relative cursor-pointer rounded-lg border border-glass-border p-4 pt-6 shadow-soft backdrop-blur-md transition-[transform,box-shadow] duration-300 motion-reduce:transition-none motion-safe:hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card/95" : NOTES[it.color % 4]} ${idx % 2 ? "rotate-1" : "-rotate-1"} hover:rotate-0`}
             >
               <span className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-3 rounded-sm bg-tape" />
               <div className="flex items-start justify-between gap-2">
@@ -136,8 +136,9 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
               {it.done && <DreamPhotos store={photoStore} kind="memory" itemId={it.id} />}
               {!it.done && (
                 <Button
+                  variant="secondary"
                   onClick={(e) => { e.stopPropagation(); complete(it.id); }}
-                  className="mt-3.5 w-full rounded-xl bg-secondary py-2 font-display text-sm text-secondary-foreground transition active:scale-95 hover:brightness-95"
+                  className="mt-3.5 w-full rounded-lg py-2 font-display text-sm"
                 >
                   🎉 완료하기
                 </Button>
