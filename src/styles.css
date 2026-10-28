@@ -76,6 +76,7 @@
   --shadow-lift: 0 6px 14px -4px oklch(0.3 0.025 20 / 0.25);
   --primary-gradient: linear-gradient(135deg, var(--primary), var(--primary-end));
   --secondary-gradient: linear-gradient(135deg, var(--secondary), var(--secondary-end));
+  --confetti-colors: #b8858e, #9caf9f, #d3bf91, #e3c4c8;
 }
 
 .dark {

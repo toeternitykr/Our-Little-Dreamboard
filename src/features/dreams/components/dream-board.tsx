@@ -41,7 +41,7 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
   const complete = async (id: string) => {
     await supabase.from("bucket_items").update({ done: true, done_at: new Date().toISOString() }).eq("id", id);
     load();
-    const colors = ["#f4a492", "#a8e0cf", "#fbe3a1", "#f7c6d0"];
+    const colors = getComputedStyle(document.documentElement).getPropertyValue("--confetti-colors").split(",").map((color) => color.trim());
     confetti({ particleCount: 140, spread: 80, origin: { y: 0.7 }, colors });
     setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 60, origin: { x: 0 }, colors }), 200);
     setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1 }, colors }), 350);
