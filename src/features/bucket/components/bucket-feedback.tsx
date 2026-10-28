@@ -3,7 +3,7 @@ import { Heart, MessageCircle, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { HEART_LEVELS, preferenceAfterClick } from "@/lib/bucket-feedback";
+import { HEART_LEVELS, preferenceAfterClick } from "@/features/bucket/lib/bucket-feedback";
 
 export function BucketFeedback({ itemId, preference, onPreference }: {
   itemId: string;

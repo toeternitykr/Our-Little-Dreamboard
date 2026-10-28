@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ImagePlus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { DreamPhoto, useDreamPhotos } from "@/hooks/use-dream-photos";
+import type { DreamPhoto, useDreamPhotos } from "@/features/photos/hooks/use-dream-photos";
 
 export type PhotoStore = ReturnType<typeof useDreamPhotos>;
 
