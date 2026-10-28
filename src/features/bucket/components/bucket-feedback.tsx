@@ -73,7 +73,7 @@ export function BucketFeedback({ itemId, preference, onPreference }: {
               aria-label={`선호도 ${level}개`} aria-pressed={preference === level} title={`하트 ${level}개`}
               className={`h-9 w-9 ${level <= preference ? "text-destructive" : "text-muted-foreground"}`}
               onClick={() => rate(level)}>
-              <Heart className={`size-5 ${level <= preference ? "fill-current" : ""}`} />
+              <Heart className={`interactive-motion size-5 ${level <= preference ? "fill-current" : ""}`} />
             </Button>
           ))}
         </div>
@@ -82,7 +82,7 @@ export function BucketFeedback({ itemId, preference, onPreference }: {
         <MessageCircle /> 답글 {open ? replies.length : "보기"}
       </Button>
       {open && (
-        <div className="mt-4">
+        <div className="mt-4 overlay-enter">
           {loading ? <p className="text-sm text-muted-foreground" role="status">답글을 불러오는 중…</p> : (
             <div className="max-h-64 space-y-4 overflow-y-auto">
               {replies.length === 0 && <p className="text-sm text-muted-foreground">아직 답글이 없어요 💌</p>}
@@ -99,7 +99,7 @@ export function BucketFeedback({ itemId, preference, onPreference }: {
           )}
           <form className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3" onSubmit={(event) => { event.preventDefault(); send(); }}>
             <textarea aria-label="답글 내용" placeholder="답글을 남겨 주세요" rows={2} maxLength={2000} value={body} disabled={saving}
-              onChange={(event) => setBody(event.target.value)} className="min-w-0 w-full resize-y rounded-lg border bg-background px-3 py-3 text-base leading-relaxed outline-none focus:ring-2 focus:ring-ring" />
+              onChange={(event) => setBody(event.target.value)} className="min-w-0 w-full resize-y rounded-lg border bg-background px-3 py-3 text-base leading-relaxed interactive-motion outline-none focus:ring-2 focus:ring-ring" />
             <Button type="submit" size="icon" disabled={saving || !body.trim() || loading} aria-label="답글 보내기" title="답글 보내기" className="h-10 w-10 shrink-0"><Send /></Button>
           </form>
         </div>

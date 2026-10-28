@@ -18,12 +18,12 @@ export function DreamPhotos({ store, kind, itemId }: { store: PhotoStore; kind: 
       </div>
       <input ref={input} type="file" accept="image/*" multiple hidden aria-label={kind === "memory" ? "기념 사진 선택" : "배경 사진 선택"} onChange={(event) => { if (event.target.files) void store.upload(event.target.files, kind, itemId); event.target.value = ""; }} />
       {photos.length > 0 && <div className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-3 sm:gap-4">{photos.map((photo) => <div key={photo.id} className="relative aspect-square overflow-hidden rounded-md">
-        <Button type="button" variant="ghost" className="h-full w-full p-0" aria-label="사진 크게 보기" onClick={() => setViewing(photo)}><img src={photo.url} alt={kind === "memory" ? "이룬 꿈 기념 사진" : "우리 배경 사진"} className="h-full w-full object-cover" /></Button>
+        <Button type="button" variant="ghost" className="group h-full w-full p-0" aria-label="사진 크게 보기" onClick={() => setViewing(photo)}><img src={photo.url} alt={kind === "memory" ? "이룬 꿈 기념 사진" : "우리 배경 사진"} className="h-full w-full object-cover interactive-motion motion-safe:group-hover:scale-105 motion-safe:group-focus-visible:scale-105" /></Button>
         <Button type="button" size="icon" variant="outline" className="absolute right-1 top-1 h-8 w-8 bg-background/90" title="사진 삭제" aria-label="사진 삭제" disabled={store.busy} onClick={() => { if (confirm("이 사진을 삭제할까요?")) void store.remove(photo); }}><Trash2 /></Button>
       </div>)}</div>}
-      {viewing && createPortal(<div role="dialog" aria-modal="true" aria-label="사진 크게 보기" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/80 p-5" onClick={(event) => { event.stopPropagation(); setViewing(null); }}>
+      {viewing && createPortal(<div role="dialog" aria-modal="true" aria-label="사진 크게 보기" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/80 p-5 overlay-enter" onClick={(event) => { event.stopPropagation(); setViewing(null); }}>
         <Button type="button" variant="outline" size="icon" aria-label="사진 닫기" className="absolute right-4 top-4" onClick={() => setViewing(null)}><X /></Button>
-        <img src={viewing.url} alt="우리의 추억" className="max-h-[85dvh] max-w-full object-contain" />
+        <img src={viewing.url} alt="우리의 추억" className="max-h-[85dvh] max-w-full object-contain panel-enter" />
       </div>, document.body)}
     </div>
   );

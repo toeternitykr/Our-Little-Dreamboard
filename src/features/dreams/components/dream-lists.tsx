@@ -25,7 +25,7 @@ function DreamPanel({ label, tab, items, empty, today, onOpen, onShowAll }: {
                 variant="ghost"
                 onClick={() => onOpen(it)}
                 title={`${it.title} · ${scheduleLabel(it)}${!it.done && it.date ? ` · ${countdownLabel(it.date, today)}` : ""}`}
-                className="grid h-auto min-h-9 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-card/80 active:scale-[0.98]"
+                className="grid h-auto min-h-9 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-card/80 motion-safe:active:scale-[0.98]"
               >
                 <span className="min-w-0 truncate text-xs leading-relaxed">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">{shortSchedule(it)}</span>
@@ -39,7 +39,7 @@ function DreamPanel({ label, tab, items, empty, today, onOpen, onShowAll }: {
         type="button"
         variant="ghost"
         onClick={() => onShowAll(tab)}
-        className="mt-3 w-full rounded-lg bg-muted/70 py-2 text-xs font-medium transition hover:bg-muted active:scale-[0.98]"
+        className="mt-3 w-full rounded-lg bg-muted/70 py-2 text-xs font-medium hover:bg-muted motion-safe:active:scale-[0.98]"
       >
         전체 {items.length}개 보기
       </Button>
@@ -58,13 +58,13 @@ export function DreamSidebar({ open, onToggle, todo, done, today, onOpen, onShow
   if (!open) return (
     <Button variant="outline"
       onClick={() => onToggle(true)}
-      className="fixed bottom-4 left-4 z-40 inline-flex items-center gap-1.5 rounded-full bg-card/90 px-4 py-2 font-display text-sm shadow-soft backdrop-blur transition active:scale-95"
+      className="fixed bottom-4 left-4 z-40 inline-flex items-center gap-1.5 rounded-full bg-card/90 px-4 py-2 font-display text-sm shadow-soft backdrop-blur motion-safe:active:scale-[0.98]"
     >
       <List className="size-4" /> 꿈 목록
     </Button>
   );
   return (
-    <div className="fixed bottom-4 left-4 z-40 flex max-h-[78dvh] w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-y-auto pb-1">
+    <div className="fixed bottom-4 left-4 z-40 flex max-h-[78dvh] w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-y-auto pb-1 panel-enter">
       <div className="flex items-center justify-between px-1">
         <span className="text-xs font-semibold text-muted-foreground">📚 꿈 목록</span>
         <Button type="button" variant="ghost" size="icon" title="목록 접기" aria-label="목록 접기" onClick={() => onToggle(false)} className="size-6 rounded-full bg-background/80"><ChevronDown /></Button>
@@ -80,13 +80,13 @@ export function DreamListDialog({ label, items, today, onClose, onOpen }: {
   onClose: () => void; onOpen: (item: Item) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 p-4 backdrop-blur-sm animate-in fade-in sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 p-4 backdrop-blur-sm overlay-enter sm:items-center" onClick={onClose}>
       <section
         role="dialog"
         aria-modal="true"
         aria-label={`${label} 전체 목록`}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[85dvh] w-full max-w-xl overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 shadow-soft backdrop-blur-md animate-in slide-in-from-bottom-10 sm:p-8"
+        className="max-h-[85dvh] w-full max-w-xl overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 shadow-soft backdrop-blur-md panel-enter sm:p-8"
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <h2 className="min-w-0 section-title">{label} <span className="text-sm text-muted-foreground">{items.length}</span></h2>
@@ -98,7 +98,7 @@ export function DreamListDialog({ label, items, today, onClose, onOpen }: {
           <ul className="mt-6 divide-y">
             {items.map((it) => (
               <li key={it.id}>
-                <Button variant="ghost" onClick={() => onOpen(it)} className="block h-auto w-full whitespace-normal rounded-lg px-3 py-4 text-left transition hover:bg-muted/70 active:scale-[0.99]">
+                <Button variant="ghost" onClick={() => onOpen(it)} className="block h-auto w-full whitespace-normal rounded-lg px-3 py-4 text-left hover:bg-muted/70 motion-safe:active:scale-[0.99]">
                   <p className="break-words text-base font-semibold leading-relaxed">{EMOJIS[it.title.length % EMOJIS.length]} {it.title}</p>
                   <p className="mt-2 break-words text-xs font-normal leading-relaxed text-muted-foreground">
                     ✍️ {it.author || "함께"} · 🗓️ {scheduleLabel(it)}

@@ -91,7 +91,7 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
         <Button
           onClick={() => setEditing("new")}
-          className="mt-5 inline-flex h-auto min-h-11 max-w-full items-center gap-2 whitespace-normal rounded-full bg-primary px-5 py-3 font-medium text-sm text-primary-foreground shadow-soft transition active:scale-95 hover:-translate-y-0.5"
+          className="mt-5 inline-flex h-auto min-h-11 max-w-full items-center gap-2 whitespace-normal rounded-full bg-primary px-5 py-3 font-medium text-sm text-primary-foreground shadow-soft motion-safe:active:scale-[0.98] motion-safe:hover:-translate-y-0.5"
         >
           ＋ 새로운 버킷리스트 추가하기
         </Button>
@@ -113,17 +113,17 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
       {!loaded ? (
         <p className="mt-16 text-center text-4xl animate-pulse">🌷</p>
       ) : list.length === 0 ? (
-        <div className="mx-auto mt-16 w-fit rounded-[2rem] bg-background/80 px-10 py-8 text-center text-base text-muted-foreground shadow-soft backdrop-blur-[3px]">
+        <div key={tab} className="overlay-enter mx-auto mt-16 w-fit rounded-[2rem] bg-background/80 px-10 py-8 text-center text-base text-muted-foreground shadow-soft backdrop-blur-[3px]">
           <p className="text-5xl">{tab === "todo" ? "🌱" : "🎁"}</p>
           <p className="mt-3">{tab === "todo" ? "첫 번째 꿈을 적어볼까요?" : "아직 이룬 꿈이 없어요. 곧 채워질 거예요!"}</p>
         </div>
       ) : (
-        <section className="dream-grid mt-10 grid gap-8">
+        <section key={tab} className="overlay-enter dream-grid mt-10 grid gap-8">
           {list.map((it) => (
             <article
               key={it.id}
               onClick={() => setEditing(it)}
-              className={`relative cursor-pointer rounded-lg border border-glass-border min-w-0 p-6 pt-8 shadow-soft sm:p-8 sm:pt-10 backdrop-blur-md transition-[transform,box-shadow] duration-300 motion-reduce:transition-none motion-safe:hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card/95" : NOTES[it.color % 4]}`}
+              className={`relative cursor-pointer rounded-lg border border-glass-border min-w-0 p-6 pt-8 shadow-soft sm:p-8 sm:pt-10 backdrop-blur-md interactive-motion motion-safe:hover:-translate-y-1 hover:shadow-md panel-enter ${it.done ? "bg-card/95" : NOTES[it.color % 4]}`}
             >
               <span className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-3 rounded-sm bg-tape" />
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
@@ -166,8 +166,8 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
       )}
 
       {(boardError || photoStore.error) && <p role="alert" className="mt-4 rounded-md bg-background/90 p-3 text-sm text-destructive">{boardError || photoStore.error}</p>}
-      {photoSettings && <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 backdrop-blur-sm" onClick={() => setPhotoSettings(false)}>
-        <section role="dialog" aria-modal="true" aria-label="배경 사진 관리" className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 sm:p-8 shadow-soft" onClick={(e) => e.stopPropagation()}>
+      {photoSettings && <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 backdrop-blur-sm overlay-enter" onClick={() => setPhotoSettings(false)}>
+        <section role="dialog" aria-modal="true" aria-label="배경 사진 관리" className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 sm:p-8 shadow-soft panel-enter" onClick={(e) => e.stopPropagation()}>
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 className="min-w-0 section-title">우리의 배경 사진</h2><Button variant="ghost" size="icon" aria-label="배경 사진 닫기" onClick={() => setPhotoSettings(false)}><X /></Button></div>
           <img src={coupleBg.url} alt="기본 부부 사진" className="mt-6 aspect-[16/9] w-full rounded-md object-cover" />
           <DreamPhotos store={photoStore} kind="background" />
