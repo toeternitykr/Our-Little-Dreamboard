@@ -1,4 +1,5 @@
 # Tasks
+- [ ] Audit and harden dreamboard table and private-photo RLS; verify owner and public isolation.
 - [x] Add persistent replies to each bucket item.
 - [x] Add five-heart shared preference controls.
 - [x] Verify saved replies and preference through the signed-in board.
