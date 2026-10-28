@@ -1,5 +1,5 @@
 # Tasks
-- [ ] Add consistent interactive transitions, photo hover zoom and smooth dialog/menu entrances; verify normal and reduced motion.
+- [x] Add consistent interactive transitions, photo hover zoom and smooth dialog/menu entrances; verify normal and reduced motion.
 - [x] Refine spacing, typography and responsive grids across board, login and dialogs; verify signed-in desktop/mobile flows.
 - [x] Refine the palette, glass surfaces and buttons; verify readable light/dark styles and existing board interactions.
 - [x] Audit and harden dreamboard table and private-photo RLS; verify owner and public isolation.
