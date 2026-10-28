@@ -1,18 +1,18 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
-const url = process.env.VITE_SUPABASE_URL;
-const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const token = process.env.LOVABLE_BROWSER_SUPABASE_ACCESS_TOKEN;
-const session = process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
+const url = process.env['VITE_SUPABASE_URL'];
+const key = process.env['VITE_SUPABASE_PUBLISHABLE_KEY'];
+const token = process.env['LOVABLE_BROWSER_SUPABASE_ACCESS_TOKEN'];
+const session = process.env['LOVABLE_BROWSER_SUPABASE_SESSION_JSON'];
 const owner = session ? JSON.parse(session).user.id as string : undefined;
 const foreign = "00000000-0000-4000-8000-000000000001";
 
 describe.skipIf(!url || !key || !token || !owner)("Live dreamboard RLS", () => {
   async function request(path: string, method = "GET", body?: unknown, authenticated = true) {
     const headers: Record<string, string> = { apikey: key ?? "", "Content-Type": "application/json", Prefer: "return=representation" };
-    if (authenticated) headers.Authorization = `Bearer ${token}`;
-    const response = await fetch(`${url}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+    if (authenticated) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(`${url}${path}`, { method, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     const text = await response.text();
     return { status: response.status, data: text ? JSON.parse(text) : null };
   }
