@@ -22,6 +22,13 @@
       "when": 1792896198301,
       "tag": "0002_dream_dates_authors_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793168356796,
+      "tag": "0003_strict_dreamboard_owner_rls",
+      "breakpoints": true
     }
   ]
 }
