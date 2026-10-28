@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HEART_LEVELS, preferenceAfterClick } from "@/lib/bucket-feedback";
+import { HEART_LEVELS, preferenceAfterClick } from "@/features/bucket/lib/bucket-feedback";
 
 describe("Five-heart preference", () => {
   it("offers exactly five levels and saves the selected level", () => {

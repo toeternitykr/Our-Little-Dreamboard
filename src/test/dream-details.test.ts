@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { WRITERS, daysRemaining, countdownLabel, todayInSeoul } from "@/lib/dream-details";
+import { WRITERS, daysRemaining, countdownLabel, todayInSeoul } from "@/features/dreams/lib/dream-details";
 
 describe("Shared dream details", () => {
   it("offers the two named writers without deriving them from the shared account", () => {
