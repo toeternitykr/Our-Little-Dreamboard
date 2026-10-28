@@ -28,7 +28,13 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
   const [listOpen, setListOpen] = useState<boolean | null>(null);
   const [listTab, setListTab] = useState<"todo" | "done" | null>(null);
 
-  useEffect(() => { setListOpen(window.matchMedia("(min-width: 1024px)").matches); }, []);
+  useEffect(() => {
+    const viewport = window.matchMedia("(min-width: 1024px)");
+    const syncList = () => setListOpen(viewport.matches);
+    syncList();
+    viewport.addEventListener("change", syncList);
+    return () => viewport.removeEventListener("change", syncList);
+  }, []);
 
   const load = async () => {
     const { data, error } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });

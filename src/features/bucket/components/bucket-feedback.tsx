@@ -65,13 +65,13 @@ export function BucketFeedback({ itemId, preference, onPreference }: {
 
   return (
     <div className="mt-6 border-t pt-5" onClick={(event) => event.stopPropagation()}>
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+      <div className="grid grid-cols-1 items-center gap-2">
         <span className="min-w-0 text-xs leading-relaxed text-muted-foreground">선호도 {preference}/5</span>
         <div className="flex shrink-0 gap-0" role="group" aria-label="하트 선호도">
           {HEART_LEVELS.map((level) => (
             <Button key={level} type="button" variant="ghost" size="icon" disabled={rating}
               aria-label={`선호도 ${level}개`} aria-pressed={preference === level} title={`하트 ${level}개`}
-              className={`h-8 w-8 ${level <= preference ? "text-destructive" : "text-muted-foreground"}`}
+              className={`h-9 w-9 ${level <= preference ? "text-destructive" : "text-muted-foreground"}`}
               onClick={() => rate(level)}>
               <Heart className={`size-5 ${level <= preference ? "fill-current" : ""}`} />
             </Button>
