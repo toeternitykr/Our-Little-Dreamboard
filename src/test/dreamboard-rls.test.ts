@@ -73,4 +73,21 @@ describe.skipIf(!url || !key || !token || !owner)("Live dreamboard RLS", () => {
       expect((await request(`/rest/v1/bucket_photos?id=eq.${photo}`, "DELETE")).status).toBe(200);
     } finally { await request(`/rest/v1/bucket_items?id=eq.${id}`, "DELETE"); }
   });
+
+  it("allows private owner-file upload and signing but denies anonymous and foreign-folder access", async () => {
+    const path = `${owner}/${randomUUID()}.jpg`;
+    const headers = { apikey: key ?? "", Authorization: `Bearer ${token}`, "Content-Type": "image/jpeg" };
+    try {
+      const own = await fetch(`${url}/storage/v1/object/dream-photos/${path}`, { method: "POST", headers, body: new Uint8Array([255, 216, 255, 217]) });
+      expect(own.status).toBe(200);
+      expect((await request(`/storage/v1/object/sign/dream-photos/${path}`, "POST", { expiresIn: 60 })).status).toBe(200);
+      const anonymous = await request(`/storage/v1/object/sign/dream-photos/${path}`, "POST", { expiresIn: 60 }, false);
+      expect(anonymous.status).toBeGreaterThanOrEqual(400);
+      const denied = await fetch(`${url}/storage/v1/object/dream-photos/${foreign}/${randomUUID()}.jpg`, { method: "POST", headers, body: new Uint8Array([255, 216, 255, 217]) });
+      expect(denied.status).toBeGreaterThanOrEqual(400);
+      expect((await request(`/storage/v1/object/sign/dream-photos/${foreign}/denied.jpg`, "POST", { expiresIn: 60 })).status).toBeGreaterThanOrEqual(400);
+    } finally {
+      expect((await request("/storage/v1/object/dream-photos", "DELETE", { prefixes: [path] })).status).toBe(200);
+    }
+  });
 });

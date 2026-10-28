@@ -1,7 +1,8 @@
 # Tasks
-- [ ] Audit and harden dreamboard table and private-photo RLS; verify owner and public isolation.
-- [ ] Reorganize dream, photo, and bucket feedback code into feature folders without changing shared UI; verify imports and behavior.
-- [ ] Verify ignored environment/build files and audit configuration/source for hardcoded private credentials.
+- [x] Audit and harden dreamboard table and private-photo RLS; verify owner and public isolation.
+- [x] Reorganize dream, photo, and bucket feedback code into feature folders without changing shared UI; verify imports and behavior.
+- [x] Verify ignored environment/build files and audit configuration/source for hardcoded private credentials.
+- [ ] Exclude .env and .env.* from Git: blocked by platform-protected .gitignore and managed tracked .env; requires Git sync configuration outside agent access.
 - [x] Add persistent replies to each bucket item.
 - [x] Add five-heart shared preference controls.
 - [x] Verify saved replies and preference through the signed-in board.
