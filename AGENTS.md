@@ -16,3 +16,4 @@
 - Keep Seoul calendar-day countdown helpers separate from UI and photo controls isolated from card-edit clicks.
 - Organize domain code under src/features/{dreams,photos,bucket,auth}; routes compose feature entry points and shared primitives remain in src/components/ui to keep feature dependencies explicit.
 - Enforce shared-account ownership through restrictive RLS guards and explicit operation grants; child rows also require an owned parent, and replies/photo metadata are insert/delete only.
+- Theme colors, gradients, glass borders, and shadows live in src/styles.css; Button variants consume them and the root content follows the device color-scheme preference for consistent light/dark surfaces.
