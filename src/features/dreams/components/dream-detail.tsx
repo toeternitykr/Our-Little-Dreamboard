@@ -8,13 +8,13 @@ export function DreamDetail({ item, today, onClose, onEdit }: {
   item: Item; today: string; onClose: () => void; onEdit: (item: Item) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 p-4 backdrop-blur-sm animate-in fade-in sm:items-center lg:items-start lg:justify-end lg:bg-foreground/10 lg:p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 p-4 backdrop-blur-sm overlay-enter sm:items-center lg:items-start lg:justify-end lg:bg-foreground/10 lg:p-4" onClick={onClose}>
       <section
         role="dialog"
         aria-modal="true"
         aria-label="꿈 자세히 보기"
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 shadow-soft backdrop-blur-md animate-in slide-in-from-bottom-10 lg:mt-16 lg:mr-2 lg:max-h-[80dvh] lg:w-72 lg:p-6 lg:slide-in-from-bottom-0 lg:slide-in-from-right-10"
+        className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 shadow-soft backdrop-blur-md panel-enter lg:mt-16 lg:mr-2 lg:max-h-[80dvh] lg:w-72 lg:p-6"
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <h2 className="min-w-0 section-title lg:text-base">{EMOJIS[item.title.length % EMOJIS.length]} {item.title}</h2>

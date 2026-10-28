@@ -20,15 +20,15 @@ export function DreamEditor({ item, onClose, onSave, onDelete }: {
     catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했어요."); }
     finally { setBusy(false); }
   };
-  const field = "mt-2 min-w-0 w-full rounded-lg border bg-background px-4 py-3 text-base leading-relaxed outline-none focus:ring-2 focus:ring-ring";
+  const field = "mt-2 min-w-0 w-full rounded-lg border bg-background px-4 py-3 text-base leading-relaxed interactive-motion outline-none focus:ring-2 focus:ring-ring";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 backdrop-blur-sm animate-in fade-in sm:items-center sm:p-6" onClick={() => { if (!busy) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 backdrop-blur-sm overlay-enter sm:items-center sm:p-6" onClick={() => { if (!busy) onClose(); }}>
       <form
         onClick={(e) => e.stopPropagation()}
         role="dialog" aria-modal="true" aria-label={item ? "버킷리스트 수정" : "새로운 꿈 적기"}
         onSubmit={(e) => { e.preventDefault(); if (title.trim() && !busy) void submit(); }}
-        className="max-h-[90dvh] overflow-y-auto w-full max-w-lg rounded-t-lg border border-glass-border bg-popover/95 p-6 shadow-soft sm:p-8 backdrop-blur-md animate-in slide-in-from-bottom-10 sm:rounded-lg"
+        className="max-h-[90dvh] overflow-y-auto w-full max-w-lg rounded-t-lg border border-glass-border bg-popover/95 p-6 shadow-soft sm:p-8 backdrop-blur-md panel-enter sm:rounded-lg"
       >
         <h2 className="section-title">{item ? "✏️ 버킷리스트 수정" : "💌 새로운 꿈 적기"}</h2>
         <label className="mt-6 block text-sm font-medium">제목
