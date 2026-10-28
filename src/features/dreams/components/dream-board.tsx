@@ -28,7 +28,13 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
   const [listOpen, setListOpen] = useState<boolean | null>(null);
   const [listTab, setListTab] = useState<"todo" | "done" | null>(null);
 
-  useEffect(() => { setListOpen(window.matchMedia("(min-width: 1024px)").matches); }, []);
+  useEffect(() => {
+    const viewport = window.matchMedia("(min-width: 1024px)");
+    const syncList = () => setListOpen(viewport.matches);
+    syncList();
+    viewport.addEventListener("change", syncList);
+    return () => viewport.removeEventListener("change", syncList);
+  }, []);
 
   const load = async () => {
     const { data, error } = await supabase.from("bucket_items").select("*").order("created_at", { ascending: false });
@@ -74,30 +80,30 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
 
 
   return (
-    <main className={`mx-auto min-h-screen max-w-5xl px-4 pt-8 sm:px-6 ${listOpen ? "lg:pl-72 max-lg:pb-[46dvh]" : "pb-32"}`}>
-      <div className="flex justify-end gap-2">
+    <main className={`mx-auto min-h-screen max-w-7xl px-5 pt-6 sm:px-8 sm:pt-8 ${listOpen ? "lg:pl-80 max-lg:pb-[46dvh]" : "pb-32"}`}>
+      <div className="flex justify-end gap-3">
         <Button variant="outline" size="icon" title="배경 사진 관리" aria-label="배경 사진 관리" onClick={() => setPhotoSettings(true)}><Images /></Button>
         <Button variant="outline" onClick={signOut} className="rounded-full px-4 py-1.5 text-sm">👋 로그아웃</Button>
       </div>
-      <header className="mx-auto w-fit rounded-2xl border border-glass-border bg-background/85 px-6 py-4 text-center shadow-soft backdrop-blur-md">
+      <header className="mx-auto w-fit rounded-2xl border border-glass-border bg-background/85 mt-5 max-w-full px-6 py-6 text-center sm:px-8 shadow-soft backdrop-blur-md">
         <p className="text-2xl">👩‍❤️‍👨</p>
-        <h1 className="mt-1.5 font-display text-lg text-foreground sm:text-xl">우리(윤 용태, 김 정순)의 버킷리스트</h1>
-        <p className="mt-0.5 text-xs text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
+        <h1 className="mt-3 page-title text-foreground">우리(윤 용태, 김 정순)의 버킷리스트</h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">함께 꿈꾸고, 하나씩 이뤄가요 🌙</p>
         <Button
           onClick={() => setEditing("new")}
-          className="mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-display text-base text-primary-foreground shadow-soft transition active:scale-95 hover:-translate-y-0.5"
+          className="mt-5 inline-flex h-auto min-h-11 max-w-full items-center gap-2 whitespace-normal rounded-full bg-primary px-5 py-3 font-medium text-sm text-primary-foreground shadow-soft transition active:scale-95 hover:-translate-y-0.5"
         >
           ＋ 새로운 버킷리스트 추가하기
         </Button>
       </header>
 
-      <nav className="sticky top-2 z-10 mx-auto mt-6 grid max-w-sm grid-cols-2 gap-1 rounded-full border border-glass-border bg-card/90 p-1 shadow-soft backdrop-blur-md">
+      <nav className="sticky top-2 z-10 mx-auto mt-8 grid max-w-md grid-cols-2 gap-2 rounded-full border border-glass-border bg-card/90 p-1.5 shadow-soft backdrop-blur-md">
         {([["todo", "🏃‍♂️ 우리의 꿈", todo.length], ["done", "✨ 이룬 꿈", done.length]] as const).map(([k, label, n]) => (
           <Button
             key={k}
             variant={tab === k ? (k === "todo" ? "default" : "secondary") : "ghost"}
             onClick={() => setTab(k)}
-            className={`rounded-full py-2 font-display text-sm ${tab !== k ? "text-muted-foreground" : ""}`}
+            className={`h-11 rounded-full px-2 py-2 font-semibold text-sm ${tab !== k ? "text-muted-foreground" : ""}`}
           >
             {label} <span className="text-sm opacity-80">{n}</span>
           </Button>
@@ -112,23 +118,23 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
           <p className="mt-3">{tab === "todo" ? "첫 번째 꿈을 적어볼까요?" : "아직 이룬 꿈이 없어요. 곧 채워질 거예요!"}</p>
         </div>
       ) : (
-        <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((it, idx) => (
+        <section className="dream-grid mt-10 grid gap-8">
+          {list.map((it) => (
             <article
               key={it.id}
               onClick={() => setEditing(it)}
-              className={`relative cursor-pointer rounded-lg border border-glass-border p-4 pt-6 shadow-soft backdrop-blur-md transition-[transform,box-shadow] duration-300 motion-reduce:transition-none motion-safe:hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card/95" : NOTES[it.color % 4]} ${idx % 2 ? "rotate-1" : "-rotate-1"} hover:rotate-0`}
+              className={`relative cursor-pointer rounded-lg border border-glass-border min-w-0 p-6 pt-8 shadow-soft sm:p-8 sm:pt-10 backdrop-blur-md transition-[transform,box-shadow] duration-300 motion-reduce:transition-none motion-safe:hover:-translate-y-1 animate-in fade-in zoom-in-95 ${it.done ? "bg-card/95" : NOTES[it.color % 4]}`}
             >
               <span className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-3 rounded-sm bg-tape" />
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-display text-lg leading-snug">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                <h3 className="min-w-0 card-title">
                   {EMOJIS[it.title.length % EMOJIS.length]} {it.title}
                 </h3>
-                {it.done && <span className="text-2xl">🏅</span>}
+                {it.done && <span className="shrink-0 text-2xl">🏅</span>}
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">✍️ {it.author || "함께"}</p>
-              {it.desc && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{it.desc}</p>}
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">✍️ {it.author || "함께"}</p>
+              {it.desc && <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground">{it.desc}</p>}
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-xs leading-relaxed">
                 <span className="rounded-full bg-muted px-3 py-1 font-medium">🗓️ {it.date ? it.date.replaceAll("-", ".") : `${it.year}년 목표`}</span>
                 {it.done && <span className="font-medium text-muted-foreground">✨ {it.doneAt}</span>}
               </div>
@@ -138,13 +144,13 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
                 <Button
                   variant="secondary"
                   onClick={(e) => { e.stopPropagation(); complete(it.id); }}
-                  className="mt-3.5 w-full rounded-lg py-2 font-display text-sm"
+                  className="mt-5 h-11 w-full rounded-lg py-2 font-semibold text-sm"
                 >
                   🎉 완료하기
                 </Button>
               )}
               <BucketFeedback itemId={it.id} preference={it.preference} onPreference={(preference) => setItems((current) => current.map((item) => item.id === it.id ? { ...item, preference } : item))} />
-              <div className="mt-2 flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+              <div className="mt-4 flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                 <Button type="button" variant="ghost" size="icon" title="꿈 수정" aria-label="꿈 수정" disabled={deleting !== null} onClick={() => setEditing(it)}><Pencil /></Button>
                 <Button type="button" variant="ghost" size="icon" title="꿈 삭제" aria-label="꿈 삭제" className="text-destructive" disabled={deleting !== null} onClick={async () => {
                   if (!confirm(`“${it.title}” 꿈을 삭제할까요? 답글과 기념 사진도 함께 삭제돼요.`)) return;
@@ -161,9 +167,9 @@ export function Board({ photoStore }: { photoStore: PhotoStore }) {
 
       {(boardError || photoStore.error) && <p role="alert" className="mt-4 rounded-md bg-background/90 p-3 text-sm text-destructive">{boardError || photoStore.error}</p>}
       {photoSettings && <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 backdrop-blur-sm" onClick={() => setPhotoSettings(false)}>
-        <section role="dialog" aria-modal="true" aria-label="배경 사진 관리" className="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-lg bg-popover p-5 shadow-soft" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-between"><h2 className="font-display text-lg">우리의 배경 사진</h2><Button variant="ghost" size="icon" aria-label="배경 사진 닫기" onClick={() => setPhotoSettings(false)}><X /></Button></div>
-          <img src={coupleBg.url} alt="기본 부부 사진" className="mt-3 h-28 w-full rounded-md object-cover" />
+        <section role="dialog" aria-modal="true" aria-label="배경 사진 관리" className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-lg border border-glass-border bg-popover/95 p-6 sm:p-8 shadow-soft" onClick={(e) => e.stopPropagation()}>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 className="min-w-0 section-title">우리의 배경 사진</h2><Button variant="ghost" size="icon" aria-label="배경 사진 닫기" onClick={() => setPhotoSettings(false)}><X /></Button></div>
+          <img src={coupleBg.url} alt="기본 부부 사진" className="mt-6 aspect-[16/9] w-full rounded-md object-cover" />
           <DreamPhotos store={photoStore} kind="background" />
           {photoStore.error && <p role="alert" className="mt-3 text-sm text-destructive">{photoStore.error}</p>}
         </section>

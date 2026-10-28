@@ -1,4 +1,5 @@
 # Tasks
+- [x] Refine spacing, typography and responsive grids across board, login and dialogs; verify signed-in desktop/mobile flows.
 - [x] Refine the palette, glass surfaces and buttons; verify readable light/dark styles and existing board interactions.
 - [x] Audit and harden dreamboard table and private-photo RLS; verify owner and public isolation.
 - [x] Reorganize dream, photo, and bucket feedback code into feature folders without changing shared UI; verify imports and behavior.
