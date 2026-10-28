@@ -1,5 +1,6 @@
 # Tasks
 - [ ] Audit and harden dreamboard table and private-photo RLS; verify owner and public isolation.
+- [ ] Reorganize dream, photo, and bucket feedback code into feature folders without changing shared UI; verify imports and behavior.
 - [x] Add persistent replies to each bucket item.
 - [x] Add five-heart shared preference controls.
 - [x] Verify saved replies and preference through the signed-in board.
