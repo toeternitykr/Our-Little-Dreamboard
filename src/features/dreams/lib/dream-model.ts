@@ -1,5 +1,5 @@
 export type Item = { id: string; title: string; desc: string; year: string; done: boolean; doneAt?: string | undefined; doneShort?: string | undefined; color: number; preference: number; date: string | null; author: string };
-export const NOTES = ["bg-note-1", "bg-note-2", "bg-note-3", "bg-note-4"];
+export const NOTES = ["bg-note-1/95", "bg-note-2/95", "bg-note-3/95", "bg-note-4/95"];
 export const EMOJIS = ["🌷", "✈️", "🏡", "🌙", "🍰", "🎡", "🌊", "⛺"];
 
 export type Row = { id: string; title: string; description: string; target_year: string; done: boolean; done_at: string | null; color: number; preference: number; target_date: string | null; author_name: string };
